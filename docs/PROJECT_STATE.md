@@ -1,6 +1,6 @@
 # Project State
 
-**Current phase:** Phases 1–9 implemented (MVP feature-complete). Remaining: deployment by owner (needs Cloudflare account) and optional Supabase project setup.
+**Current phase:** v1 MVP complete (phases 0–9). **Requirements updated to v2 "Goal Worlds"** — plan in [ROADMAP_V2.md](ROADMAP_V2.md). Next: v2.1 (P0 foundation). Deploy still pending (owner).
 
 ## Done
 - Phase 0: spec, architecture, docs
@@ -28,4 +28,6 @@
 - Local data is per browser profile; clearing site data deletes it (export first).
 
 ## Next task
-Owner: deploy to Cloudflare Pages (see README). Optional: create Supabase project, run migration, set env vars, test sync end-to-end.
+**v2.1a — Goal World data model + themes (no new screens):** extend `Category` (love, self_love, academic, peace, custom), add `theme` to Goal and `goal_id` to journal/routine/audio types, lazy local migration, `0002_goal_worlds.sql`, `[data-world]` palette tokens in `index.css` + contrast unit test.
+Then v2.1b: `/g/:goalId` shell, goal switcher, preset/custom goal creation from content packs.
+Owner (anytime): deploy to Cloudflare Pages (README); approve CC0 image list before v2.3.

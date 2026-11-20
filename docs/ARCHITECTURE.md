@@ -48,7 +48,8 @@ Tables mirror `src/lib/types.ts` (snake_case): profiles, goals (milestones jsonb
 ## Roadmap
 | Phase | Scope |
 |---|---|
-| 0–9 | All phases implemented ✅ (see PROJECT_STATE.md) |
+| 0–9 | v1 implemented ✅ (see PROJECT_STATE.md) |
+| v2 | Goal Worlds — see ROADMAP_V2.md |
 | 1 | Scaffold, design tokens (light/dark), app shell + nav, dashboard (local mock data) |
 | 2 | Supabase auth, migrations + RLS, onboarding + growth plan |
 | 3 | Goals, visualization scripts, affirmation studio (+ voice) |

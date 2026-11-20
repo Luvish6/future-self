@@ -28,3 +28,6 @@ Evidence-informed framing only (self-efficacy, implementation intentions, WOOP, 
 
 ## Git
 Commit after verified milestones, conventional messages (`feat:`, `fix:`, `docs:`, `chore:`). Never commit `.env*` (except `.env.example`), user data, or keys. Only report a push if it succeeded.
+
+## Content ethics checklist (preset packs, advisor)
+No manifestation/attraction claims · no "sleep rewires your brain" · never imply users cause mistreatment · no spending to look wealthy · no promises about a specific person · autonomy + healthy boundaries · not therapy; keep crisis routing.
