@@ -21,18 +21,25 @@ export interface KV {
 /** Local backend: each collection is one array under a KV key. */
 export function localBackend(kv: KV): Backend {
   const read = async <K extends CollectionName>(c: K) => ((await kv.get(c)) as Collections[K][] | undefined) ?? []
+  // Serialize read-modify-write per collection so rapid saves never overwrite each other.
+  const queue = new Map<string, Promise<unknown>>()
+  const locked = <T>(c: string, fn: () => Promise<T>): Promise<T> => {
+    const p = (queue.get(c) ?? Promise.resolve()).then(fn, fn)
+    queue.set(c, p.catch(() => {}))
+    return p
+  }
   return {
     list: read,
-    async put(c, row) {
+    put: (c, row) => locked(c, async () => {
       const rows = await read(c)
       const i = rows.findIndex((r) => r.id === row.id)
       if (i >= 0) rows[i] = row
       else rows.push(row)
       await kv.set(c, rows)
-    },
-    async remove(c, id) {
+    }),
+    remove: (c, id) => locked(c, async () => {
       await kv.set(c, (await read(c)).filter((r) => r.id !== id))
-    },
+    }),
     clearAll: () => kv.clear(),
   }
 }
@@ -110,7 +117,8 @@ export const db = {
     const prev = partial.id ? rows.find((r) => r.id === partial.id) : undefined
     const row = { ...(prev ?? { id: uid(), created_at: nowIso() }), ...partial } as Collections[K]
     await getBackend().put(c, row)
-    cache.set(c, prev ? rows.map((r) => (r.id === row.id ? row : r)) : [...rows, row])
+    const cur = (cache.get(c) ?? []) as Collections[K][] // re-read: other saves may have landed meanwhile
+    cache.set(c, cur.some((r) => r.id === row.id) ? cur.map((r) => (r.id === row.id ? row : r)) : [...cur, row])
     emit()
     return row
   },

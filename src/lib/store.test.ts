@@ -58,3 +58,13 @@ describe('migrateLocal', () => {
     expect(await kv.get('goals')).toEqual([{ id: 'g3', category: 'love' }])
   })
 })
+
+describe('concurrent writes', () => {
+  it('keeps every row when saves overlap', async () => {
+    const kv = memKV()
+    setBackend(localBackend(kv))
+    await Promise.all([1, 2, 3, 4, 5].map((n) => db.save('journal_entries', { body: `e${n}` })))
+    expect((await db.all('journal_entries')).length).toBe(5)
+    expect(((await kv.get('journal_entries')) as unknown[]).length).toBe(5)
+  })
+})

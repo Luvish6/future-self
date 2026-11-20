@@ -6,6 +6,7 @@ import { buildVisualization, toSegments, stripPauses } from './visualization'
 import { analyzeDay, placeHabits } from './routine'
 import { completionRate, flexibleStreak, recoveryMessage, weekCount, weekStart, weeklyRate, weeklyStreak } from './streaks'
 import { isCrisis } from './safety'
+import { challengesFor, pickDaily, reflectionQuestions } from './daily'
 import { addDays, dayKey } from '../util'
 import type { Onboarding } from '../types'
 
@@ -143,5 +144,23 @@ describe('weekly targets', () => {
   it('rate averages target share and respects creation date', () => {
     expect(weeklyRate(days('2026-11-16', '2026-11-17', '2026-11-18'), 3, fri, 4, '2026-11-16')).toBe(1)
     expect(weeklyRate(days('2026-11-16'), 2, fri, 1)).toBe(0.5)
+  })
+})
+
+describe('daily goal experience', () => {
+  it('picks the same item all day per goal and cycles with offset', () => {
+    const xs = ['a', 'b', 'c']
+    const first = pickDaily(xs, 'g1', '2026-11-20')
+    expect(pickDaily(xs, 'g1', '2026-11-20')).toBe(first)
+    const seen = new Set([0, 1, 2].map((o) => pickDaily(xs, 'g1', '2026-11-20', o)))
+    expect(seen.size).toBe(3)
+    expect(pickDaily([], 'g1', '2026-11-20')).toBeNull()
+  })
+  it('challenges exclude existing habits and always offer something', () => {
+    const c = challengesFor('love', ['Express appreciation to someone'])
+    expect(c).not.toContain('Express appreciation to someone')
+    expect(challengesFor('custom', []).length).toBeGreaterThan(0)
+    expect(reflectionQuestions([])).toHaveLength(3)
+    expect(reflectionQuestions(['Q'])).toEqual(['Q'])
   })
 })

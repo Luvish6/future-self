@@ -35,6 +35,9 @@
 - **v2.2a done:** `components/GoalScope.tsx` (`useGoalScope` = `?goal=` scope + world theme; `GoalScopeBar` chips; `useWorldTheme` moved here). Affirmations: scoped list, category-browsable library (adds to scoped goal), favorites filter. Habits: scoped list, category library picker, schedule = every day / specific days / N× per week (`weekly_target`; `weekCount`/`weeklyStreak`/`weeklyRate`, Monday weeks, tested), Progress uses weekly rate. World page links pass `?goal=`. `weekly_target` added to 0002 SQL.
 - Known gap: per-habit reminders not yet (single in-app daily reminder only).
 
+- **v2.2b done:** `features/worlds/Daily.tsx` "Today in this world" on the goal page: daily affirmation (listen/another), latest visualization (play/create), optional challenge (logs a goal-linked win), mood + reflection check-in (goal-linked journal entry), progress counts; every card skippable for today, cards customizable per goal (localStorage). Pure picks in `engine/daily.ts` (tested). Advisor accepts `?goal=` (scope bar, goal-only context, saves goal_id).
+- **Fixed (v1 bug):** overlapping local saves could drop rows; `localBackend` now serializes writes per collection and `db.save` re-reads cache after await (tested).
+
 ## Next task
-**v2.2b:** daily goal experience on `/g/:goalId` (today's affirmation, viz, one challenge, mood/reflection, all skippable).
+**v2.3a:** vision boards per goal — `vision_boards` table/type (goal_id, title), items gain `board_id` + `size` (S/M/L) + `position`; board list + create/rename/delete; reorder (up/down, mobile-friendly) and size on items; uploads + text/quotes reuse existing compress(). Built-in library comes in v2.3b (needs owner approval of a CC0 image set).
 Owner (anytime): deploy to Cloudflare Pages (README); approve CC0 image list before v2.3.

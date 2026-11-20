@@ -7,6 +7,7 @@ import { setActiveGoal, useHabitLogs } from '../../lib/hooks'
 import { CATEGORY_LABEL } from '../../lib/engine/categorize'
 import { isScheduled } from '../../lib/engine/streaks'
 import { useWorldTheme } from '../../components/GoalScope'
+import { DailyExperience } from './Daily'
 
 export function GoalSwitcher({ current }: { current?: string }) {
   const nav = useNavigate()
@@ -27,7 +28,7 @@ export function GoalSwitcher({ current }: { current?: string }) {
 
 const LINKS: { to: (id: string) => string; label: string; icon: IconName }[] = [
   { to: (id) => `/visualize?goal=${id}`, label: 'Visualize', icon: 'eye' },
-  { to: () => '/advisor', label: 'Advisor', icon: 'compass' },
+  { to: (id) => `/advisor?goal=${id}`, label: 'Advisor', icon: 'compass' },
   { to: (id) => `/affirmations?goal=${id}`, label: 'Affirmations', icon: 'sparkle' },
   { to: () => '/vision', label: 'Vision board', icon: 'image' },
   { to: () => '/journal', label: 'Journal', icon: 'book' },
@@ -61,6 +62,8 @@ export default function World() {
         {goal.description && <p className="mt-3 max-w-xl text-sm text-accent-ink/90">{goal.description}</p>}
         <Link to="/goals" className="mt-4 inline-flex items-center gap-1 text-sm text-accent-ink/90 underline-offset-4 hover:underline"><Icon name="edit" className="size-4" /> Edit goal</Link>
       </div>
+
+      <DailyExperience goal={goal} />
 
       <Section title="Today’s actions">
         {todays.length === 0 ? <Empty icon="check" title="No habits for this goal today" action={<Link className="text-accent" to={`/habits?goal=${goal.id}`}>Add a habit</Link>} /> : (

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Button, Card, Chip, Notice, Page } from '../../components/ui'
 import { Icon } from '../../components/Icon'
 import { useCollection } from '../../lib/store'
+import { GoalScopeBar, useGoalScope } from '../../components/GoalScope'
 import { useProfile } from '../../lib/hooks'
 import { advise, type AdvisorReply } from '../../lib/engine/advisor'
 import { cleanText } from '../../lib/util'
@@ -18,7 +19,9 @@ const EXAMPLES = [
 ]
 
 export default function Advisor() {
-  const goals = useCollection('goals').rows.filter((g) => g.status === 'active')
+  const scope = useGoalScope()
+  const all = useCollection('goals').rows.filter((g) => g.status === 'active')
+  const goals = scope.goal ? [scope.goal] : all
   const journal = useCollection('journal_entries')
   const { profile } = useProfile()
   const [q, setQ] = useState('')
@@ -37,7 +40,7 @@ export default function Advisor() {
   }
   const saveToJournal = async (m: Msg) => {
     await journal.save({
-      kind: 'reflection', title: `Advisor: ${m.q.slice(0, 80)}`, mood: null, open_on: null,
+      kind: 'reflection', goal_id: scope.goal?.id ?? null, title: `Advisor: ${m.q.slice(0, 80)}`, mood: null, open_on: null,
       body: `Question: ${m.q}\n\nQuestions to consider:\n${m.r.questions.map((x) => `• ${x}`).join('\n')}\n\nOptions:\n${m.r.options.map((x) => `• ${x}`).join('\n')}\n\nMy thoughts:\n`,
     })
     setMsgs((all) => all.map((x) => (x.id === m.id ? { ...x, saved: true } : x)))
@@ -46,6 +49,7 @@ export default function Advisor() {
   return (
     <Page title="Future Self Advisor" subtitle="Think through decisions from the perspective of who you want to become.">
       <Notice>This is a structured reflection tool built on decision frameworks and your own goals — not a real future version of you, and not professional advice. It runs entirely on your device; nothing is sent to an AI service.</Notice>
+      <GoalScopeBar scope={scope} />
       {goals.length === 0 && <p className="text-sm text-muted">Tip: <Link className="text-accent" to="/onboarding">complete onboarding</Link> so guidance reflects your goals and values.</p>}
 
       {msgs.length === 0 && (
