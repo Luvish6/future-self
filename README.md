@@ -25,7 +25,7 @@ npm run build      # typecheck + production build to dist/
 4. Users can then sign up/in from **Settings → Account & sync**.
 
 ## Deploy (Cloudflare Workers static assets, free tier)
-Live: https://future-self.luvish612.workers.dev
+Live: https://luvish6.github.io/future-self/ (GitHub Pages, auto-deployed by .github/workflows/pages.yml) · https://future-self.luvish612.workers.dev (Cloudflare)
 1. Cloudflare dashboard → Workers & Pages → Create → import this GitHub repo (auto-deploys on every push to main).
 2. Build command `npm run build`; deploy command `npx wrangler deploy` (reads `wrangler.jsonc`: serves `dist/` with SPA fallback). Node 22 is pinned in `.node-version`.
 3. For sync, add `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` as build variables and redeploy.
