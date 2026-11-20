@@ -110,6 +110,14 @@ export interface VisionItem extends Base {
   text: string
   image: string | null // compressed data URL
   category: Category
+  board_id?: ID | null
+  size?: 'S' | 'M' | 'L'
+  position?: number
+}
+
+export interface VisionBoard extends Base {
+  goal_id: ID | null
+  title: string
 }
 
 export interface Collections {
@@ -123,9 +131,10 @@ export interface Collections {
   routine_blocks: RoutineBlock
   audio_sessions: AudioSession
   vision_items: VisionItem
+  vision_boards: VisionBoard
 }
 export type CollectionName = keyof Collections
 export const COLLECTIONS: CollectionName[] = [
   'profiles', 'goals', 'affirmations', 'visualizations', 'habits', 'habit_logs',
-  'journal_entries', 'routine_blocks', 'audio_sessions', 'vision_items',
+  'journal_entries', 'routine_blocks', 'audio_sessions', 'vision_items', 'vision_boards',
 ]

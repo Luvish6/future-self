@@ -38,6 +38,8 @@
 - **v2.2b done:** `features/worlds/Daily.tsx` "Today in this world" on the goal page: daily affirmation (listen/another), latest visualization (play/create), optional challenge (logs a goal-linked win), mood + reflection check-in (goal-linked journal entry), progress counts; every card skippable for today, cards customizable per goal (localStorage). Pure picks in `engine/daily.ts` (tested). Advisor accepts `?goal=` (scope bar, goal-only context, saves goal_id).
 - **Fixed (v1 bug):** overlapping local saves could drop rows; `localBackend` now serializes writes per collection and `db.save` re-reads cache after await (tested).
 
+- **v2.3a done:** `vision_boards` collection (goal_id, title) + items `board_id/size/position`; local schema v3 migration groups existing items into one board per goal (tested); `lib/board.ts` ordering helpers (tested); Vision page rewritten: goal scope, multiple boards (create/rename/delete), add image/quote/milestone/description, edit text, move earlier/later, S/M/L sizes (dense grid). SQL for boards/columns added to 0002.
+
 ## Next task
-**v2.3a:** vision boards per goal — `vision_boards` table/type (goal_id, title), items gain `board_id` + `size` (S/M/L) + `position`; board list + create/rename/delete; reorder (up/down, mobile-friendly) and size on items; uploads + text/quotes reuse existing compress(). Built-in library comes in v2.3b (needs owner approval of a CC0 image set).
+**v2.3b (needs owner input first):** built-in image library — owner approves a curated CC0/public-domain set (~5–8 images per preset category, WebP ≤80 KB, self-hosted in `public/library/` with `LICENSES.json`), or chooses generated "mood cards" only. Then: library browser on Vision page (category filter, search by tags, multi-select add).
 Owner (anytime): deploy to Cloudflare Pages (README); approve CC0 image list before v2.3.

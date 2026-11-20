@@ -68,3 +68,19 @@ describe('concurrent writes', () => {
     expect(((await kv.get('journal_entries')) as unknown[]).length).toBe(5)
   })
 })
+
+describe('migrateLocal v3 (vision boards)', () => {
+  it('groups existing vision items into one board per goal, preserving order', async () => {
+    const kv = memKV()
+    await kv.set('schema_version', 2)
+    await kv.set('goals', [{ id: 'g1', title: 'Save money', category: 'finance', theme: 'finance' }])
+    await kv.set('vision_items', [{ id: 'a', goal_id: 'g1' }, { id: 'b', goal_id: null }, { id: 'c', goal_id: 'g1' }])
+    await migrateLocal(kv)
+    const boards = (await kv.get('vision_boards')) as { id: string; title: string; goal_id: string | null }[]
+    const items = (await kv.get('vision_items')) as { id: string; board_id: string; position: number }[]
+    expect(boards.map((b) => b.title).sort()).toEqual(['My board', 'Save money'])
+    expect(items[0].board_id).toBe(items[2].board_id)
+    expect(items[1].board_id).not.toBe(items[0].board_id)
+    expect(items.map((i) => i.position)).toEqual([0, 1, 2])
+  })
+})

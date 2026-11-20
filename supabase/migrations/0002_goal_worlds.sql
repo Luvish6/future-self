@@ -30,4 +30,21 @@ create index if not exists journal_entries_goal_idx on public.journal_entries (g
 create index if not exists routine_blocks_goal_idx on public.routine_blocks (goal_id);
 create index if not exists audio_sessions_goal_idx on public.audio_sessions (goal_id);
 
+create table if not exists public.vision_boards (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null default auth.uid() references auth.users on delete cascade,
+  created_at timestamptz not null default now(),
+  goal_id uuid references public.goals on delete cascade,
+  title text not null check (char_length(title) between 1 and 120)
+);
+create index if not exists vision_boards_user_idx on public.vision_boards (user_id);
+alter table public.vision_boards enable row level security;
+create policy own_rows on public.vision_boards for all to authenticated
+  using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
+
+alter table public.vision_items
+  add column if not exists board_id uuid references public.vision_boards on delete cascade,
+  add column if not exists size text not null default 'S' check (size in ('S','M','L')),
+  add column if not exists position integer not null default 0;
+
 -- RLS policies from 0001 already cover the new columns (row-level, owner-only).

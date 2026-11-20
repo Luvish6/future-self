@@ -153,7 +153,7 @@ export function useCollection<K extends CollectionName>(c: K) {
 }
 
 // ---- local schema migrations (lazy, idempotent, never drop data) ----
-export const LOCAL_SCHEMA = 2
+export const LOCAL_SCHEMA = 3
 export async function migrateLocal(kv: KV) {
   const v = ((await kv.get('schema_version')) as number | undefined) ?? 1
   if (v >= LOCAL_SCHEMA) return
@@ -164,6 +164,26 @@ export async function migrateLocal(kv: KV) {
     for (const c of ['journal_entries', 'routine_blocks', 'audio_sessions'] as const) {
       const rows = ((await kv.get(c)) as { goal_id?: string | null }[] | undefined) ?? []
       if (rows.length) await kv.set(c, rows.map((r) => ({ ...r, goal_id: r.goal_id ?? null })))
+    }
+  }
+  if (v < 3) {
+    // v2.3 boards: put existing vision items into one board per goal (or a General board), keeping order.
+    const items = ((await kv.get('vision_items')) as Collections['vision_items'][] | undefined) ?? []
+    const orphans = items.filter((i) => !i.board_id)
+    if (orphans.length) {
+      const boards = ((await kv.get('vision_boards')) as Collections['vision_boards'][] | undefined) ?? []
+      const goals = ((await kv.get('goals')) as Collections['goals'][] | undefined) ?? []
+      const byGoal = new Map<string, string>()
+      for (const i of orphans) {
+        const key = i.goal_id ?? ''
+        if (!byGoal.has(key)) {
+          const id = uid()
+          byGoal.set(key, id)
+          boards.push({ id, created_at: nowIso(), goal_id: i.goal_id ?? null, title: goals.find((g) => g.id === i.goal_id)?.title ?? 'My board' })
+        }
+      }
+      await kv.set('vision_boards', boards)
+      await kv.set('vision_items', items.map((i, n) => (i.board_id ? i : { ...i, board_id: byGoal.get(i.goal_id ?? ''), size: i.size ?? 'S', position: i.position ?? n })))
     }
   }
   await kv.set('schema_version', LOCAL_SCHEMA)

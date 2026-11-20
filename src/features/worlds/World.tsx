@@ -30,7 +30,7 @@ const LINKS: { to: (id: string) => string; label: string; icon: IconName }[] = [
   { to: (id) => `/visualize?goal=${id}`, label: 'Visualize', icon: 'eye' },
   { to: (id) => `/advisor?goal=${id}`, label: 'Advisor', icon: 'compass' },
   { to: (id) => `/affirmations?goal=${id}`, label: 'Affirmations', icon: 'sparkle' },
-  { to: () => '/vision', label: 'Vision board', icon: 'image' },
+  { to: (id) => `/vision?goal=${id}`, label: 'Vision board', icon: 'image' },
   { to: () => '/journal', label: 'Journal', icon: 'book' },
   { to: () => '/audio', label: 'Night audio', icon: 'moon' },
 ]
