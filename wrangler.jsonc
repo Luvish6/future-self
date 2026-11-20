@@ -1,11 +1,7 @@
 {
-  // Cloudflare Workers static assets (deployed by `npx wrangler deploy` in Cloudflare's Git build).
+  // Cloudflare copy now only redirects to the canonical GitHub Pages site (see worker/redirect.js).
   "name": "future-self",
   "compatibility_date": "2026-10-01",
   "workers_dev": true,
-  "assets": {
-    "directory": "./dist",
-    // Serve index.html for unknown paths so client-side routes (/goals, /g/:id, …) work on refresh.
-    "not_found_handling": "single-page-application"
-  }
+  "main": "worker/redirect.js"
 }

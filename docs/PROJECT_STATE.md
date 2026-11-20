@@ -1,6 +1,6 @@
 # Project State
 
-**Current phase:** v2 Goal Worlds complete (v2.1–v2.5, incl. v2.3b image library). Plan in [ROADMAP_V2.md](ROADMAP_V2.md). **Deployed:** https://luvish6.github.io/future-self/ (GitHub Pages via .github/workflows/pages.yml, BASE_PATH=/future-self/; use this for LinkedIn — LinkedIn could not fetch workers.dev) and https://future-self.luvish612.workers.dev (Cloudflare Workers static assets, Git auto-deploy from main; SPA fallback via wrangler.jsonc).
+**Current phase:** v2 Goal Worlds complete (v2.1–v2.5, incl. v2.3b image library). Plan in [ROADMAP_V2.md](ROADMAP_V2.md). **Deployed:** https://luvish6.github.io/future-self/ (GitHub Pages via .github/workflows/pages.yml, BASE_PATH=/future-self/; use this for LinkedIn — LinkedIn could not fetch workers.dev) — the old Cloudflare workers.dev address 301-redirects there (worker/redirect.js; /sw.js serves a self-unregistering service worker).
 
 ## Done
 - Phase 0: spec, architecture, docs
