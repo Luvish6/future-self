@@ -30,6 +30,9 @@
 ## v2 progress
 - **v2.1a done:** categories + love/self_love/academic/peace/custom (starter habits/affirmations), `Goal.theme`, `goal_id` on journal/routine/audio, `migrateLocal()` (local schema v2, idempotent), `0002_goal_worlds.sql`, palettes in `src/lib/worlds.ts` → injected `[data-world]` CSS (light/dark), WCAG AA contrast test (neutral accent darkened to #5e4cc4 to pass).
 
+- **v2.1b done:** content packs `src/content/worlds.ts` (10 presets + custom; ethics/completeness tests), `/goals/new` (pick preset or custom → editable checklists for affirmations, habits, milestones, reflection questions + theme picker), `/g/:goalId` world page (scoped `data-world` on `<html>`, identity hero, today’s goal habits, affirmations, milestones, reflection, quick links), `GoalSwitcher`, sidebar "Goal worlds" list, dashboard worlds strip, theme picker in goal edit. Goal gained optional `description`, `reflection_questions` (added to 0002 SQL). Gradient heroes use `text-accent-ink` for contrast.
+
 ## Next task
-**v2.1b:** `/g/:goalId` shell, goal switcher, preset/custom goal creation from content packs.
+**v2.2a:** scope existing feature pages to the active goal (`?goal=` / active goal filter + "All goals" toggle) for Affirmations and Habits, with per-world affirmation library browsing (favorites) and habit library picker; weekly targets on habits.
+Then v2.2b: daily goal experience on `/g/:goalId` (today's affirmation, viz, one challenge, mood/reflection, all skippable).
 Owner (anytime): deploy to Cloudflare Pages (README); approve CC0 image list before v2.3.

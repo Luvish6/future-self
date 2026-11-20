@@ -2,6 +2,9 @@ import { useEffect } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { Icon, type IconName } from './Icon'
 import { cx } from './ui'
+import { ThemeDot } from './ThemePicker'
+import { useCollection } from '../lib/store'
+import { themeOf } from '../lib/worlds'
 
 export const NAV: { to: string; label: string; icon: IconName; primary?: boolean }[] = [
   { to: '/', label: 'Today', icon: 'home', primary: true },
@@ -20,6 +23,7 @@ export const NAV: { to: string; label: string; icon: IconName; primary?: boolean
 
 export function Layout() {
   const { pathname } = useLocation()
+  const goals = useCollection('goals').rows.filter((g) => g.status === 'active')
   useEffect(() => { window.scrollTo(0, 0) }, [pathname])
   return (
     <div className="md:flex">
@@ -36,6 +40,14 @@ export function Layout() {
               <Icon name={n.icon} className="size-[18px]" /> {n.label}
             </NavLink>
           ))}
+          <p className="px-3 pb-1 pt-5 text-xs font-medium uppercase tracking-wider text-muted">Goal worlds</p>
+          {goals.map((g) => (
+            <NavLink key={g.id} to={`/g/${g.id}`}
+              className={({ isActive }) => cx('flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] transition', isActive ? 'bg-accent-soft text-accent font-medium' : 'text-muted hover:bg-surface-2 hover:text-ink')}>
+              <ThemeDot theme={themeOf(g)} /> <span className="truncate">{g.title}</span>
+            </NavLink>
+          ))}
+          <NavLink to="/goals/new" className="flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] text-muted hover:bg-surface-2 hover:text-ink"><Icon name="plus" className="size-[18px]" /> New goal</NavLink>
         </nav>
       </aside>
 

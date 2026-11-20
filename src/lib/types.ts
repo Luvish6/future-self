@@ -43,6 +43,8 @@ export interface Goal extends Base {
   status: 'active' | 'paused' | 'done'
   milestones: Milestone[]
   theme: WorldTheme
+  description?: string
+  reflection_questions?: string[]
 }
 
 export interface Affirmation extends Base {

@@ -85,7 +85,7 @@ export function suggestAffirmations(category: Category, opts: { behavior?: strin
   return out
 }
 
-const OVERCLAIM = /\b(always|never fail|guarantee|effortless(ly)?|perfect(ly)?|millionaire|billionaire|everyone loves|nothing can stop)\b/i
+const OVERCLAIM = /\b(always|never fail|guarantee|effortless(ly)?|(?<!not |n.t )perfect(ly)?|millionaire|billionaire|everyone loves|nothing can stop)\b/i
 
 /** Gentle check: flags absolute statements that may feel unbelievable. */
 export function credibilityHint(text: string): string | null {

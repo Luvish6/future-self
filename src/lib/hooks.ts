@@ -3,6 +3,15 @@ import { useCollection } from './store'
 import type { Profile } from './types'
 import { dayKey } from './util'
 
+const ACTIVE = 'fs:active-goal'
+/** Last opened Goal World (device-only convenience). */
+export function getActiveGoal(): string | null {
+  try { return localStorage.getItem(ACTIVE) } catch { return null }
+}
+export function setActiveGoal(id: string) {
+  try { localStorage.setItem(ACTIVE, id) } catch { /* ignore */ }
+}
+
 /** The single profile row (onboarding answers, values). */
 export function useProfile() {
   const { rows, save, loading } = useCollection('profiles')

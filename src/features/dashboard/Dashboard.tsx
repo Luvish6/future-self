@@ -6,6 +6,8 @@ import { useCollection } from '../../lib/store'
 import { useHabitLogs, useProfile } from '../../lib/hooks'
 import { isScheduled, flexibleStreak } from '../../lib/engine/streaks'
 import { addDays, dayKey, greeting, hash, pick } from '../../lib/util'
+import { themeOf } from '../../lib/worlds'
+import { CATEGORY_LABEL } from '../../lib/engine/categorize'
 
 const QUICK: { to: string; label: string; icon: IconName; hint: string }[] = [
   { to: '/visualize', label: 'Rehearse', icon: 'eye', hint: 'Visualization' },
@@ -42,10 +44,10 @@ export default function Dashboard() {
   if (!profile?.onboarding) {
     return (
       <Page title={`${greeting()}${name}`} subtitle="Let’s design the person you’re becoming.">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-accent to-warm p-6 text-white md:p-10">
-          <div className="absolute -right-10 -top-10 size-48 rounded-full bg-white/15 blur-2xl" />
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-accent to-[color-mix(in_oklab,var(--accent)_70%,var(--warm))] p-6 text-accent-ink md:p-10">
+          <div className="absolute -right-10 -top-10 size-48 rounded-full bg-accent-ink/10 blur-2xl" />
           <h2 className="text-2xl md:text-3xl">Meet your future self</h2>
-          <p className="mt-2 max-w-md text-white/90">Answer a few reflective questions (about 5 minutes). We’ll turn them into a realistic growth plan with small daily actions, an identity statement, and if-then plans for your obstacles.</p>
+          <p className="mt-2 max-w-md text-accent-ink/90">Answer a few reflective questions (about 5 minutes). We’ll turn them into a realistic growth plan with small daily actions, an identity statement, and if-then plans for your obstacles.</p>
           <Link to="/onboarding" className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 font-medium text-[#1f1d2b]">Begin <Icon name="arrow" className="size-4" /></Link>
         </div>
         <p className="text-sm text-muted">Your answers stay private on this device unless you choose to sign in and sync. Future Self is a personal-development tool, not a substitute for professional care.</p>
@@ -61,6 +63,19 @@ export default function Dashboard() {
           <p className="mt-1 font-serif text-xl leading-snug">{goal.identity_statement}</p>
         </Card>
       )}
+
+      <Section title="Your goal worlds" action={<Link to="/goals/new" className="text-sm text-accent">+ New goal</Link>}>
+        <ul className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 md:mx-0 md:grid md:grid-cols-3 md:px-0">
+          {goals.map((g) => (
+            <li key={g.id} data-world={themeOf(g)} className="w-60 shrink-0 snap-start md:w-auto">
+              <Link to={`/g/${g.id}`} className="block h-full rounded-2xl bg-gradient-to-br from-accent to-[color-mix(in_oklab,var(--accent)_70%,var(--warm))] p-4 text-accent-ink transition hover:brightness-105">
+                <span className="text-xs text-accent-ink/80">{CATEGORY_LABEL[g.category]}</span>
+                <span className="mt-1 block font-serif text-lg leading-snug">{g.title}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Section>
 
       <Section title="Today’s actions" action={<Link to="/habits" className="text-sm text-accent">Manage</Link>}>
         {todays.length === 0 ? (

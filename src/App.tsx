@@ -9,6 +9,8 @@ import Dashboard from './features/dashboard/Dashboard'
 
 const Onboarding = lazy(() => import('./features/onboarding/Onboarding'))
 const Goals = lazy(() => import('./features/goals/Goals'))
+const NewGoal = lazy(() => import('./features/goals/NewGoal'))
+const World = lazy(() => import('./features/worlds/World'))
 const Affirmations = lazy(() => import('./features/affirmations/Affirmations'))
 const Visualize = lazy(() => import('./features/visualize/Visualize'))
 const Advisor = lazy(() => import('./features/advisor/Advisor'))
@@ -48,6 +50,8 @@ function Gate() {
         <Route element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="goals" element={<Goals />} />
+          <Route path="goals/new" element={<NewGoal />} />
+          <Route path="g/:goalId" element={<World />} />
           <Route path="affirmations" element={<Affirmations />} />
           <Route path="visualize" element={<Visualize />} />
           <Route path="advisor" element={<Advisor />} />

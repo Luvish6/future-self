@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { ThemeDot, ThemePicker } from '../../components/ThemePicker'
 import { Button, Card, Empty, Field, IconButton, Page, Progress, Segmented } from '../../components/ui'
 import { Icon } from '../../components/Icon'
 import { useCollection } from '../../lib/store'
@@ -9,7 +10,6 @@ import { cleanText, uid } from '../../lib/util'
 import { themeOf } from '../../lib/worlds'
 
 const CATS = Object.keys(CATEGORY_LABEL) as Category[]
-const blank = (): Partial<Goal> => ({ title: '', category: 'general', why: '', identity_statement: '', target_date: null, status: 'active', milestones: [] })
 
 function GoalForm({ initial, onDone }: { initial: Partial<Goal>; onDone: () => void }) {
   const { save } = useCollection('goals')
@@ -35,6 +35,7 @@ function GoalForm({ initial, onDone }: { initial: Partial<Goal>; onDone: () => v
         </div>
         <Field label="Why it matters">{(id) => <textarea id={id} className="field min-h-20" maxLength={2000} value={g.why} onChange={(e) => set({ why: e.target.value })} />}</Field>
         <Field label="Identity statement" hint="Who you’re becoming, phrased as a process: “I’m becoming someone who…”">{(id) => <input id={id} className="field" maxLength={500} value={g.identity_statement} onChange={(e) => set({ identity_statement: e.target.value })} />}</Field>
+        <div><p className="mb-2 text-sm font-medium">Colours</p><ThemePicker value={themeOf({ theme: g.theme, category: g.category ?? 'general' })} onChange={(t) => set({ theme: t })} /></div>
         <div>
           <p className="mb-1.5 text-sm font-medium">Milestones</p>
           <ul className="space-y-1">
@@ -64,11 +65,12 @@ export default function Goals() {
   const { rows, save, remove } = useCollection('goals')
   const [editing, setEditing] = useState<Partial<Goal> | null>(null)
   const [filter, setFilter] = useState<Goal['status']>('active')
+  const nav = useNavigate()
   const list = rows.filter((g) => g.status === filter)
 
   return (
     <Page title="Goals" subtitle="What you’re working toward, and who you’re becoming."
-      actions={!editing && <Button icon="plus" onClick={() => setEditing(blank())}>New</Button>}>
+      actions={!editing && <Button icon="plus" onClick={() => nav('/goals/new')}>New</Button>}>
       {editing && <GoalForm initial={editing} onDone={() => setEditing(null)} />}
       <div className="flex items-center justify-between gap-3">
         <Segmented label="Filter goals" value={filter} onChange={setFilter} options={[{ value: 'active', label: 'Active' }, { value: 'paused', label: 'Paused' }, { value: 'done', label: 'Done' }]} />
@@ -83,7 +85,7 @@ export default function Goals() {
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <p className="text-xs text-accent">{CATEGORY_LABEL[g.category]}{g.target_date && ` · by ${new Date(g.target_date + 'T00:00').toLocaleDateString()}`}</p>
-                  <h2 className="mt-0.5 text-xl">{g.title}</h2>
+                  <h2 className="mt-0.5 text-xl"><Link to={`/g/${g.id}`} className="inline-flex items-center gap-2 hover:text-accent"><ThemeDot theme={themeOf(g)} />{g.title}</Link></h2>
                   {g.identity_statement && <p className="mt-1 text-sm italic text-muted">{g.identity_statement}</p>}
                 </div>
                 <div className="flex">
