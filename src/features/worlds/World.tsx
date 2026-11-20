@@ -31,7 +31,8 @@ const LINKS: { to: (id: string) => string; label: string; icon: IconName }[] = [
   { to: (id) => `/advisor?goal=${id}`, label: 'Advisor', icon: 'compass' },
   { to: (id) => `/affirmations?goal=${id}`, label: 'Affirmations', icon: 'sparkle' },
   { to: (id) => `/vision?goal=${id}`, label: 'Vision board', icon: 'image' },
-  { to: () => '/journal', label: 'Journal', icon: 'book' },
+  { to: (id) => '/journal?goal=' + id, label: 'Journal', icon: 'book' },
+  { to: (id) => '/journal?new=evidence&goal=' + id, label: 'Log evidence', icon: 'star' },
   { to: () => '/audio', label: 'Night audio', icon: 'moon' },
 ]
 
@@ -94,7 +95,7 @@ export default function World() {
         </Section>
       )}
 
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+      <div className="grid grid-cols-3 gap-3 sm:grid-cols-7">
         {LINKS.map((l) => (
           <Link key={l.label} to={l.to(goal.id)} className="flex flex-col items-center gap-2 rounded-2xl border border-line bg-surface/80 p-3 text-center text-xs transition hover:border-accent">
             <Icon name={l.icon} className="size-5 text-accent" /> {l.label}

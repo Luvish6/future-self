@@ -76,7 +76,10 @@ export interface HabitLog extends Base {
   log_date: string // YYYY-MM-DD local
 }
 
-export type JournalKind = 'reflection' | 'gratitude' | 'letter' | 'win' | 'obstacle' | 'lesson' | 'weekly'
+export type JournalKind = 'reflection' | 'gratitude' | 'letter' | 'win' | 'obstacle' | 'lesson' | 'weekly' | 'evidence' | 'simulation'
+
+/** Evidence Journal: a concrete action that shows growth. */
+export interface Evidence { happened: string; action: string; learned: string; felt: string; next: string }
 
 export interface JournalEntry extends Base {
   goal_id: ID | null
@@ -85,6 +88,7 @@ export interface JournalEntry extends Base {
   body: string
   mood: number | null
   open_on: string | null // future-self letters can be sealed until a date
+  evidence?: Evidence | null
 }
 
 export type BlockKind = 'sleep' | 'work' | 'study' | 'commute' | 'family' | 'exercise' | 'meal' | 'free' | 'other'

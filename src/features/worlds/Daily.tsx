@@ -142,7 +142,7 @@ export function DailyExperience({ goal }: { goal: Goal }) {
           <Card>
             <p className="text-xs font-medium uppercase tracking-wider text-accent">Progress</p>
             <div className="mt-3 grid grid-cols-3 text-center">
-              {[[checkins, 'check-ins this week'], [`${msDone}/${goal.milestones.length}`, 'milestones'], [goalEntries, 'reflections & wins']].map(([n, l]) => (
+              {[[checkins, 'check-ins this week'], [`${msDone}/${goal.milestones.length}`, 'milestones'], [goalEntries, 'journal entries']].map(([n, l]) => (
                 <div key={l as string}><p className="font-serif text-2xl">{n}</p><p className="text-xs text-muted">{l}</p></div>
               ))}
             </div>

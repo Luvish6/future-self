@@ -47,4 +47,11 @@ alter table public.vision_items
   add column if not exists size text not null default 'S' check (size in ('S','M','L')),
   add column if not exists position integer not null default 0;
 
+-- Evidence Journal + Simulator entries.
+alter table public.journal_entries drop constraint if exists journal_entries_kind_check;
+alter table public.journal_entries add constraint journal_entries_kind_check
+  check (kind in ('reflection','gratitude','letter','win','obstacle','lesson','weekly','evidence','simulation'));
+alter table public.journal_entries
+  add column if not exists evidence jsonb check (evidence is null or pg_column_size(evidence) < 16000);
+
 -- RLS policies from 0001 already cover the new columns (row-level, owner-only).

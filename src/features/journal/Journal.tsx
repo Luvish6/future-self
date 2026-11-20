@@ -2,11 +2,23 @@ import { useMemo, useState } from 'react'
 import { Button, Card, Chip, Empty, Field, IconButton, Page, Section, cx } from '../../components/ui'
 import { Icon } from '../../components/Icon'
 import { useCollection } from '../../lib/store'
+import { GoalScopeBar, useGoalScope } from '../../components/GoalScope'
+import { useSearchParams } from 'react-router-dom'
 import { useHabitLogs } from '../../lib/hooks'
-import type { JournalEntry, JournalKind } from '../../lib/types'
+import type { Evidence, JournalEntry, JournalKind } from '../../lib/types'
 import { addDays, cleanText, dayKey } from '../../lib/util'
 
+const EVIDENCE_FIELDS: { key: keyof Evidence; label: string; placeholder: string }[] = [
+  { key: 'happened', label: 'What happened?', placeholder: 'e.g. A question came up in class' },
+  { key: 'action', label: 'What action did I take?', placeholder: 'e.g. I asked it even though I was nervous' },
+  { key: 'learned', label: 'What did I learn?', placeholder: 'e.g. Nobody judged me; the teacher thanked me' },
+  { key: 'felt', label: 'How did I feel?', placeholder: 'e.g. Shaky at first, proud afterwards' },
+  { key: 'next', label: 'What do I want to try next?', placeholder: 'e.g. Share an opinion in the group project' },
+]
+const evidenceBody = (e: Evidence) => EVIDENCE_FIELDS.filter((f) => e[f.key]).map((f) => `${f.label} ${e[f.key]}`).join('\n')
+
 const KINDS: { value: JournalKind; label: string; prompt: string }[] = [
+  { value: 'evidence', label: 'Evidence of growth', prompt: 'Record one real action that shows who you’re becoming — however small.' },
   { value: 'reflection', label: 'Reflection', prompt: 'What happened today, and how did you respond? What would your future self notice?' },
   { value: 'gratitude', label: 'Gratitude', prompt: 'Three things you’re grateful for today, and why.' },
   { value: 'win', label: 'Win', prompt: 'What went well — however small? What did you do to make it happen?' },
@@ -25,6 +37,14 @@ export default function Journal() {
   const [filter, setFilter] = useState<JournalKind | 'all'>('all')
   const [q, setQ] = useState('')
   const today = dayKey()
+  const scope = useGoalScope()
+  const [params] = useSearchParams()
+  const [opened, setOpened] = useState(false)
+  if (!opened && params.get('new') === 'evidence') {
+    setOpened(true)
+    setKind('evidence')
+    setDraft({ kind: 'evidence', title: '', body: '', mood: null, open_on: null, goal_id: scope.goal?.id ?? null, evidence: { happened: '', action: '', learned: '', felt: '', next: '' } })
+  }
 
   const weeklyTemplate = () => {
     const since = dayKey(addDays(new Date(), -6))
@@ -34,29 +54,36 @@ export default function Journal() {
   }
   const startNew = (k: JournalKind) => {
     setKind(k)
-    setDraft({ kind: k, title: '', body: k === 'weekly' ? weeklyTemplate() : '', mood: null, open_on: null })
+    setDraft({ kind: k, title: '', body: k === 'weekly' ? weeklyTemplate() : '', mood: null, open_on: null, goal_id: scope.goal?.id ?? null,
+      evidence: k === 'evidence' ? { happened: '', action: '', learned: '', felt: '', next: '' } : null })
   }
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!draft?.body?.trim()) return
-    await save({ ...draft, title: cleanText(draft.title ?? '', 200), body: cleanText(draft.body, 20000) })
+    if (!draft) return
+    const ev = draft.kind === 'evidence' && draft.evidence
+      ? (Object.fromEntries(Object.entries(draft.evidence).map(([k, v]) => [k, cleanText(v, 2000)])) as unknown as Evidence) : null
+    const body = ev ? evidenceBody(ev) : cleanText(draft.body ?? '', 20000)
+    if (!body.trim() || (ev && !ev.action)) return
+    await save({ ...draft, goal_id: draft.goal_id ?? scope.goal?.id ?? null, evidence: ev, title: cleanText(draft.title ?? '', 200), body })
     setDraft(null)
   }
 
   const list = useMemo(() => {
     const s = q.trim().toLowerCase()
     return [...rows]
+      .filter((r) => !scope.goal || r.goal_id === scope.goal.id)
       .filter((r) => filter === 'all' || r.kind === filter)
       .filter((r) => !s || `${r.title} ${r.open_on && r.open_on > today ? '' : r.body}`.toLowerCase().includes(s))
       .sort((a, b) => b.created_at.localeCompare(a.created_at))
-  }, [rows, filter, q, today])
+  }, [rows, filter, q, today, scope.goal])
   const meta = KINDS.find((k) => k.value === kind)!
 
   return (
     <Page title="Journal" subtitle={<span className="inline-flex items-center gap-1"><Icon name="lock" className="size-4" /> Private to you.</span>}>
+      <GoalScopeBar scope={scope} />
       {!draft ? (
         <div className="flex flex-wrap gap-2">
-          {KINDS.map((k) => <Button key={k.value} size="sm" variant={k.value === 'reflection' ? 'primary' : 'soft'} icon="plus" onClick={() => startNew(k.value)}>{k.label}</Button>)}
+          {KINDS.map((k) => <Button key={k.value} size="sm" variant={k.value === 'evidence' ? 'primary' : 'soft'} icon="plus" onClick={() => startNew(k.value)}>{k.label}</Button>)}
         </div>
       ) : (
         <Card>
@@ -64,7 +91,18 @@ export default function Journal() {
             <p className="text-xs font-medium uppercase tracking-wider text-accent">{meta.label}</p>
             {meta.prompt && <p className="font-serif text-lg">{meta.prompt}</p>}
             <Field label="Title (optional)">{(id) => <input id={id} className="field" maxLength={200} value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />}</Field>
-            <textarea className="field min-h-52 leading-relaxed" aria-label="Entry" maxLength={20000} value={draft.body} autoFocus onChange={(e) => setDraft({ ...draft, body: e.target.value })} />
+            {draft.kind === 'evidence' && draft.evidence ? (
+              <div className="space-y-3">
+                {EVIDENCE_FIELDS.map((f, i) => (
+                  <Field key={f.key} label={f.label + (f.key === 'action' ? ' *' : '')}>{(id) => (
+                    <textarea id={id} className="field min-h-14" maxLength={2000} placeholder={f.placeholder} autoFocus={i === 0} value={draft.evidence![f.key]}
+                      onChange={(e) => setDraft({ ...draft, evidence: { ...draft.evidence!, [f.key]: e.target.value } })} />
+                  )}</Field>
+                ))}
+              </div>
+            ) : (
+              <textarea className="field min-h-52 leading-relaxed" aria-label="Entry" maxLength={20000} value={draft.body} autoFocus onChange={(e) => setDraft({ ...draft, body: e.target.value })} />
+            )}
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-1" role="radiogroup" aria-label="Mood">
                 {MOODS.map((m, i) => (
@@ -81,7 +119,7 @@ export default function Journal() {
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="ghost" onClick={() => setDraft(null)}>Cancel</Button>
-              <Button type="submit" disabled={!draft.body?.trim()}>Save entry</Button>
+              <Button type="submit" disabled={draft.kind === 'evidence' ? !draft.evidence?.action.trim() : !draft.body?.trim()}>Save entry</Button>
             </div>
           </form>
         </Card>
@@ -111,7 +149,13 @@ export default function Journal() {
                   </div>
                   {sealed
                     ? <p className="mt-2 flex items-center gap-2 text-sm text-muted"><Icon name="lock" className="size-4" /> Sealed until {new Date(r.open_on + 'T00:00').toLocaleDateString()}.</p>
-                    : <p className="mt-2 whitespace-pre-wrap text-[15px] leading-relaxed">{r.body}</p>}
+                    : r.evidence ? (
+                      <dl className="mt-2 grid gap-x-3 gap-y-1 text-[15px] sm:grid-cols-[auto_1fr]">
+                        {EVIDENCE_FIELDS.filter((f) => r.evidence![f.key]).map((f) => (
+                          <div key={f.key} className="contents"><dt className="font-medium text-muted">{f.label}</dt><dd>{r.evidence![f.key]}</dd></div>
+                        ))}
+                      </dl>
+                    ) : <p className="mt-2 whitespace-pre-wrap text-[15px] leading-relaxed">{r.body}</p>}
                 </Card>
               )
             })}
