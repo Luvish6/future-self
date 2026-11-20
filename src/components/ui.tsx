@@ -25,6 +25,11 @@ export function Page({ title, subtitle, actions, children, back }: { title: stri
   )
 }
 
+/** Small creator credit shown on the home page and sidebar. */
+export function Byline({ className }: { className?: string }) {
+  return <p className={cx('text-xs text-muted', className)}>Future Self · by <span className="font-medium text-accent">Luvish</span></p>
+}
+
 export function Section({ title, action, children, className }: { title?: string; action?: ReactNode; children: ReactNode; className?: string }) {
   return (
     <section className={className}>

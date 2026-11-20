@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useMemo } from 'react'
-import { Card, Empty, Page, Progress, Section, cx } from '../../components/ui'
+import { Byline, Card, Empty, Page, Progress, Section, cx } from '../../components/ui'
 import { Icon, type IconName } from '../../components/Icon'
 import { useCollection } from '../../lib/store'
 import { useHabitLogs, useProfile } from '../../lib/hooks'
@@ -51,6 +51,7 @@ export default function Dashboard() {
           <Link to="/onboarding" className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 font-medium text-[#1f1d2b]">Begin <Icon name="arrow" className="size-4" /></Link>
         </div>
         <p className="text-sm text-muted">Your answers stay private on this device unless you choose to sign in and sync. Future Self is a personal-development tool, not a substitute for professional care.</p>
+        <Byline className="pt-2 text-center" />
       </Page>
     )
   }
@@ -158,6 +159,7 @@ export default function Dashboard() {
           </Card>
         </Section>
       )}
+      <Byline className="pt-2 text-center" />
     </Page>
   )
 }

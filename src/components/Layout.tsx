@@ -32,7 +32,7 @@ export function Layout() {
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-line bg-surface/50 px-3 py-6 backdrop-blur md:flex">
         <div className="mb-6 flex items-center gap-2 px-3">
           <img src="/icon.svg" alt="" className="size-8" />
-          <span className="font-serif text-xl font-semibold">Future Self</span>
+          <span className="leading-tight"><span className="block font-serif text-xl font-semibold">Future Self</span><span className="block text-xs text-muted">by Luvish</span></span>
         </div>
         <nav aria-label="Main" className="flex-1 space-y-0.5 overflow-y-auto">
           {NAV.map((n) => (
