@@ -24,9 +24,10 @@ npm run build      # typecheck + production build to dist/
 3. Copy `.env.example` → `.env.local` and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (the anon key is public by design; RLS protects data). Never commit `.env*`.
 4. Users can then sign up/in from **Settings → Account & sync**.
 
-## Deploy (Cloudflare Pages, free tier)
-1. Cloudflare dashboard → Workers & Pages → Create → Pages → Connect to Git → select this repo.
-2. Build command `npm run build`, output directory `dist`, add env vars from step 3 above if using sync.
-3. Deploy. `wrangler.jsonc` serves `dist/` with SPA fallback (Workers static assets); the PWA is installable from the browser menu.
+## Deploy (Cloudflare Workers static assets, free tier)
+Live: https://future-self.luvish612.workers.dev
+1. Cloudflare dashboard → Workers & Pages → Create → import this GitHub repo (auto-deploys on every push to main).
+2. Build command `npm run build`; deploy command `npx wrangler deploy` (reads `wrangler.jsonc`: serves `dist/` with SPA fallback). Node 22 is pinned in `.node-version`.
+3. For sync, add `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` as build variables and redeploy.
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/PROJECT_STATE.md](docs/PROJECT_STATE.md).

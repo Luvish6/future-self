@@ -1,6 +1,6 @@
 # Project State
 
-**Current phase:** v2 Goal Worlds complete (v2.1–v2.5, incl. v2.3b image library). Plan in [ROADMAP_V2.md](ROADMAP_V2.md). Deploy still pending (owner).
+**Current phase:** v2 Goal Worlds complete (v2.1–v2.5, incl. v2.3b image library). Plan in [ROADMAP_V2.md](ROADMAP_V2.md). **Deployed:** https://future-self.luvish612.workers.dev (Cloudflare Workers static assets, Git auto-deploy from main; SPA fallback via wrangler.jsonc).
 
 ## Done
 - Phase 0: spec, architecture, docs
@@ -52,4 +52,4 @@
 
 ## Next task
 Optional polish: more CC0 photos for thin categories (confidence, finance, health, peace); freeform board canvas; per-habit reminders.
-Owner (anytime): deploy to Cloudflare Pages (README); optional Supabase setup (run 0001 + 0002) and live sync test.
+Owner (anytime): optional Supabase setup (run 0001 + 0002) and live sync test.
