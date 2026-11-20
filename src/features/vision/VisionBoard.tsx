@@ -6,6 +6,7 @@ import { CATEGORY_LABEL } from '../../lib/engine/categorize'
 import { byPosition, move, nextPosition, nextSize } from '../../lib/board'
 import type { VisionItem } from '../../lib/types'
 import { cleanText } from '../../lib/util'
+import { Slideshow } from './Slideshow'
 
 /** Downscale + re-encode images client-side so they stay small and drop EXIF metadata (e.g. GPS). */
 async function compress(file: File, max = 900): Promise<string> {
@@ -47,6 +48,7 @@ export default function VisionBoard() {
   const [err, setErr] = useState('')
   const [renaming, setRenaming] = useState<string | null>(null)
   const [editing, setEditing] = useState<{ id: string; text: string } | null>(null)
+  const [showing, setShowing] = useState(false)
 
   const shown = board ? byPosition(items.rows.filter((i) => i.board_id === board.id)) : []
   const boardGoal = goals.find((g) => g.id === board?.goal_id)
@@ -85,6 +87,7 @@ export default function VisionBoard() {
   return (
     <Page title="Vision boards" subtitle="Visual reminders of what you’re building — and why.">
       <GoalScopeBar scope={scope} />
+      {showing && board && <Slideshow items={shown} title={board.title} onClose={() => setShowing(false)} />}
 
       <div className="flex flex-wrap items-center gap-2" aria-label="Boards">
         {list.map((b) =>
@@ -98,6 +101,7 @@ export default function VisionBoard() {
         <Button size="sm" variant="soft" icon="plus" onClick={newBoard}>New board</Button>
         {board && (
           <span className="ml-auto flex">
+            {shown.length > 0 && <IconButton icon="play" label="Play slideshow" onClick={() => setShowing(true)} />}
             <IconButton icon="edit" label="Rename board" onClick={() => setRenaming(board.id)} />
             <IconButton icon="trash" label="Delete board" onClick={deleteBoard} />
           </span>
