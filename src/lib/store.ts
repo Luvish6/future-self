@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { COLLECTIONS, type CollectionName, type Collections } from './types'
 import { uid, nowIso } from './util'
+import { defaultTheme } from './worlds'
 
 /** Storage backend: on-device (IndexedDB) or Supabase (RLS-protected). */
 export interface Backend {
@@ -141,4 +142,21 @@ export function useCollection<K extends CollectionName>(c: K) {
   const save = useCallback((p: Partial<Collections[K]> & object) => db.save(c, p), [c])
   const remove = useCallback((id: string) => db.remove(c, id), [c])
   return { rows, loading: !cache.has(c), error, save, remove }
+}
+
+// ---- local schema migrations (lazy, idempotent, never drop data) ----
+export const LOCAL_SCHEMA = 2
+export async function migrateLocal(kv: KV) {
+  const v = ((await kv.get('schema_version')) as number | undefined) ?? 1
+  if (v >= LOCAL_SCHEMA) return
+  if (v < 2) {
+    // v2 Goal Worlds: per-goal theme; goal_id on journal/routine/audio (null = "General" world).
+    const goals = ((await kv.get('goals')) as Collections['goals'][] | undefined) ?? []
+    if (goals.length) await kv.set('goals', goals.map((g) => ({ ...g, theme: g.theme ?? defaultTheme(g.category) })))
+    for (const c of ['journal_entries', 'routine_blocks', 'audio_sessions'] as const) {
+      const rows = ((await kv.get(c)) as { goal_id?: string | null }[] | undefined) ?? []
+      if (rows.length) await kv.set(c, rows.map((r) => ({ ...r, goal_id: r.goal_id ?? null })))
+    }
+  }
+  await kv.set('schema_version', LOCAL_SCHEMA)
 }

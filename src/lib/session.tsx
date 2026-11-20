@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { idb } from './idb'
-import { localBackend, setBackend, supabaseBackend, type KV } from './store'
+import { localBackend, migrateLocal, setBackend, supabaseBackend, type KV } from './store'
 import { COLLECTIONS } from './types'
 
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined
@@ -33,9 +33,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<{ id: string; email: string | null } | null>(null)
 
   useEffect(() => {
+    let unsub = () => {}
+    const migrated = migrateLocal(idbKV).catch((e) => console.error('Local migration failed', e))
     if (!supabase) {
-      setBackend(local)
-      setReady(true)
+      migrated.then(() => {
+        setBackend(local)
+        setReady(true)
+      })
       return
     }
     const apply = (u: { id: string; email?: string } | null | undefined) => {
@@ -43,9 +47,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       setBackend(u ? supabaseBackend(supabase!, u.id) : local)
       setReady(true)
     }
-    supabase.auth.getSession().then(({ data }) => apply(data.session?.user))
-    const { data } = supabase.auth.onAuthStateChange((_e, s) => apply(s?.user))
-    return () => data.subscription.unsubscribe()
+    migrated.then(() => {
+      supabase!.auth.getSession().then(({ data }) => apply(data.session?.user))
+      const { data } = supabase!.auth.onAuthStateChange((_e, s) => apply(s?.user))
+      unsub = () => data.subscription.unsubscribe()
+    })
+    return () => unsub()
   }, [])
 
   const need = () => {

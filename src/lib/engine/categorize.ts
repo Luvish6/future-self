@@ -1,11 +1,15 @@
 import type { Category } from '../types'
 
-const KEYWORDS: Record<Exclude<Category, 'general'>, string[]> = {
+const KEYWORDS: Record<Exclude<Category, 'general' | 'custom'>, string[]> = {
+  self_love: ['self-love', 'self love', 'self-worth', 'self worth', 'worthy', 'accept myself', 'self-compassion', 'inner critic', 'love myself'],
+  love: ['feel loved', 'loved', 'belong', 'affection', 'romance', 'romantic', 'cared for', 'love'],
   finance: ['money', 'financ', 'save', 'saving', 'debt', 'invest', 'budget', 'income', 'wealth', 'rich', 'afford', 'spend', 'salary', 'buy', 'purchase', 'expensive'],
   confidence: ['confiden', 'shy', 'anxious', 'speak', 'social', 'assert', 'self-esteem', 'courage', 'public', 'nervous'],
   productivity: ['productiv', 'focus', 'procrastinat', 'distract', 'organized', 'discipline', 'time management', 'deadline'],
   health: ['health', 'fit', 'exercise', 'weight', 'sleep', 'run', 'gym', 'diet', 'eat', 'energy', 'walk'],
   career: ['career', 'job', 'promotion', 'business', 'startup', 'interview', 'boss', 'work', 'client', 'founder'],
+  academic: ['exam', 'grade', 'gpa', 'university', 'college', 'school', 'class', 'semester', 'academic', 'homework', 'thesis'],
+  peace: ['peace', 'calm', 'stress', 'balance', 'overthink', 'mindful', 'relax', 'overwhelm', 'emotional'],
   learning: ['learn', 'study', 'skill', 'course', 'exam', 'read', 'language', 'code', 'coding', 'degree'],
   relationships: ['relationship', 'friend', 'partner', 'family', 'dating', 'connect', 'lonely', 'parent'],
   creativity: ['creat', 'write', 'writing', 'art', 'music', 'design', 'paint', 'novel', 'content'],
@@ -27,13 +31,38 @@ export function categorize(text: string): Category {
 }
 
 export const CATEGORY_LABEL: Record<Category, string> = {
-  finance: 'Financial security', confidence: 'Confidence', productivity: 'Productivity',
-  health: 'Health & energy', career: 'Career', learning: 'Learning', relationships: 'Relationships',
-  creativity: 'Creativity', general: 'Personal growth',
+  love: 'Love & belonging', self_love: 'Self-love', confidence: 'Confidence', finance: 'Financial independence',
+  career: 'Career', academic: 'Academic success', health: 'Health & wellness', peace: 'Peace & balance',
+  relationships: 'Relationships', productivity: 'Productivity', learning: 'Learning', creativity: 'Creativity',
+  general: 'Personal growth', custom: 'Custom',
 }
 
 /** Small, adjustable starter actions per category, sized in minutes. */
 export const HABIT_LIBRARY: Record<Category, { title: string; minutes: number }[]> = {
+  love: [
+    { title: 'Reach out to someone you care about', minutes: 5 },
+    { title: 'Express appreciation to someone', minutes: 2 },
+    { title: 'Write down one moment of connection', minutes: 3 },
+    { title: 'Practice active listening in one conversation', minutes: 10 },
+  ],
+  self_love: [
+    { title: 'Practice compassionate self-talk', minutes: 3 },
+    { title: 'Note one thing you handled well today', minutes: 3 },
+    { title: 'Do one kind thing for your body', minutes: 10 },
+    { title: 'Say no to one thing that drains you', minutes: 1 },
+  ],
+  academic: [
+    { title: 'Focused study block (phone away)', minutes: 25 },
+    { title: 'Test yourself instead of rereading', minutes: 15 },
+    { title: 'Review today’s class notes', minutes: 10 },
+    { title: 'Plan tomorrow’s study task', minutes: 5 },
+  ],
+  peace: [
+    { title: 'Slow breathing for two minutes', minutes: 2 },
+    { title: 'Short walk without your phone', minutes: 10 },
+    { title: 'Write down what’s on your mind', minutes: 5 },
+    { title: 'Pause before reacting to one stressor', minutes: 1 },
+  ],
   finance: [
     { title: 'Review yesterday’s spending', minutes: 5 },
     { title: 'Move a small amount to savings', minutes: 2 },
@@ -88,4 +117,6 @@ export const HABIT_LIBRARY: Record<Category, { title: string; minutes: number }[
     { title: 'Visualize your next step', minutes: 5 },
     { title: 'Review your goal and why', minutes: 2 },
   ],
+  custom: [],
 }
+HABIT_LIBRARY.custom = HABIT_LIBRARY.general

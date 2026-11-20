@@ -27,7 +27,9 @@
 - Main bundle ~92 KB gzip (includes supabase-js); could lazy-load it if cloud is disabled.
 - Local data is per browser profile; clearing site data deletes it (export first).
 
+## v2 progress
+- **v2.1a done:** categories + love/self_love/academic/peace/custom (starter habits/affirmations), `Goal.theme`, `goal_id` on journal/routine/audio, `migrateLocal()` (local schema v2, idempotent), `0002_goal_worlds.sql`, palettes in `src/lib/worlds.ts` → injected `[data-world]` CSS (light/dark), WCAG AA contrast test (neutral accent darkened to #5e4cc4 to pass).
+
 ## Next task
-**v2.1a — Goal World data model + themes (no new screens):** extend `Category` (love, self_love, academic, peace, custom), add `theme` to Goal and `goal_id` to journal/routine/audio types, lazy local migration, `0002_goal_worlds.sql`, `[data-world]` palette tokens in `index.css` + contrast unit test.
-Then v2.1b: `/g/:goalId` shell, goal switcher, preset/custom goal creation from content packs.
+**v2.1b:** `/g/:goalId` shell, goal switcher, preset/custom goal creation from content packs.
 Owner (anytime): deploy to Cloudflare Pages (README); approve CC0 image list before v2.3.

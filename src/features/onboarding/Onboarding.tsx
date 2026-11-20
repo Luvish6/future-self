@@ -8,6 +8,7 @@ import { buildPlan, type GrowthPlan } from '../../lib/engine/plan'
 import { suggestAffirmations } from '../../lib/engine/affirmations'
 import type { Onboarding as OB } from '../../lib/types'
 import { cleanText, uid } from '../../lib/util'
+import { defaultTheme } from '../../lib/worlds'
 
 const EMPTY: OB = { goal: '', why: '', ideal_life: '', behaviors: '', obstacles: '', fears: '', habits_to_change: '', minutes_per_day: 15, constraints: '', progress_signal: '' }
 
@@ -54,7 +55,7 @@ export default function Onboarding() {
     let goal = goals.find((g) => g.title === title)
     if (!goal)
       goal = await db.save('goals', {
-        title, category: plan.category, why: cleanText(a.why), identity_statement: plan.identity, target_date: null, status: 'active',
+        title, category: plan.category, theme: defaultTheme(plan.category), why: cleanText(a.why), identity_statement: plan.identity, target_date: null, status: 'active',
         milestones: plan.milestones.map((m) => ({ id: uid(), title: m, done: false })),
       })
     const habits = await db.all('habits')

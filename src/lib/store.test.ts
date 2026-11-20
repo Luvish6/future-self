@@ -1,4 +1,4 @@
-import { db, localBackend, setBackend, supabaseBackend, type KV } from './store'
+import { db, LOCAL_SCHEMA, localBackend, migrateLocal, setBackend, supabaseBackend, type KV } from './store'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 const memKV = (): KV => {
@@ -40,5 +40,21 @@ describe('supabase backend', () => {
     expect(calls[1].payload).toMatchObject({ id: 'user-1' })
     expect(calls.find((c) => c.table === 'profiles' && c.eq)?.eq).toEqual(['id', 'user-1'])
     expect(calls.find((c) => c.table === 'goals' && c.eq)?.eq).toEqual(['user_id', 'user-1'])
+  })
+})
+
+describe('migrateLocal', () => {
+  it('upgrades v1 data in place without losing rows, and is idempotent', async () => {
+    const kv = memKV()
+    await kv.set('goals', [{ id: 'g1', title: 'Save', category: 'finance' }, { id: 'g2', title: 'X', category: 'general', theme: 'love' }])
+    await kv.set('journal_entries', [{ id: 'j1', body: 'hi' }])
+    await migrateLocal(kv)
+    const goals = (await kv.get('goals')) as { theme: string }[]
+    expect(goals.map((g) => g.theme)).toEqual(['finance', 'love'])
+    expect(await kv.get('journal_entries')).toEqual([{ id: 'j1', body: 'hi', goal_id: null }])
+    expect(await kv.get('schema_version')).toBe(LOCAL_SCHEMA)
+    await kv.set('goals', [{ id: 'g3', category: 'love' }])
+    await migrateLocal(kv) // already migrated: no-op
+    expect(await kv.get('goals')).toEqual([{ id: 'g3', category: 'love' }])
   })
 })

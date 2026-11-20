@@ -7,8 +7,11 @@ export interface Base {
 }
 
 export type Category =
-  | 'finance' | 'confidence' | 'productivity' | 'health' | 'career'
-  | 'learning' | 'relationships' | 'creativity' | 'general'
+  | 'love' | 'self_love' | 'confidence' | 'finance' | 'career' | 'academic' | 'health' | 'peace'
+  | 'relationships' | 'productivity' | 'learning' | 'creativity' | 'general' | 'custom'
+
+/** Goal World palette; any goal may use any theme (no forced colors). */
+export type WorldTheme = 'neutral' | 'love' | 'confidence' | 'finance' | 'peace' | 'career'
 
 export interface Onboarding {
   goal: string
@@ -39,6 +42,7 @@ export interface Goal extends Base {
   target_date: string | null
   status: 'active' | 'paused' | 'done'
   milestones: Milestone[]
+  theme: WorldTheme
 }
 
 export interface Affirmation extends Base {
@@ -72,6 +76,7 @@ export interface HabitLog extends Base {
 export type JournalKind = 'reflection' | 'gratitude' | 'letter' | 'win' | 'obstacle' | 'lesson' | 'weekly'
 
 export interface JournalEntry extends Base {
+  goal_id: ID | null
   kind: JournalKind
   title: string
   body: string
@@ -82,6 +87,7 @@ export interface JournalEntry extends Base {
 export type BlockKind = 'sleep' | 'work' | 'study' | 'commute' | 'family' | 'exercise' | 'meal' | 'free' | 'other'
 
 export interface RoutineBlock extends Base {
+  goal_id: ID | null
   weekday: number // 0..6
   start: string // HH:MM
   end: string
@@ -90,6 +96,7 @@ export interface RoutineBlock extends Base {
 }
 
 export interface AudioSession extends Base {
+  goal_id: ID | null
   title: string
   duration_s: number
 }

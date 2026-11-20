@@ -5,6 +5,27 @@ import type { Category } from '../types'
  * which research suggests can backfire for people with low self-belief.
  */
 const BY_CATEGORY: Record<Category, string[]> = {
+  love: [
+    'I deserve kindness and respect.',
+    'I can build meaningful connections, one honest conversation at a time.',
+    'I am learning to receive and express love.',
+    'My worth is not determined by someone else’s attention.',
+  ],
+  self_love: [
+    'I can speak to myself the way I would speak to a good friend.',
+    'I am allowed to take up space.',
+    'Mistakes are part of learning, not proof that I’m not enough.',
+  ],
+  academic: [
+    'I understand more each time I practice.',
+    'I can ask questions — that is how learning works.',
+    'One focused session at a time is enough.',
+  ],
+  peace: [
+    'I can pause and breathe before I respond.',
+    'I don’t have to solve everything today.',
+    'Calm is a skill I’m practicing.',
+  ],
   finance: [
     'I’m learning to make money decisions that my future self will thank me for.',
     'Every time I pause before spending, I practice financial self-control.',
@@ -50,7 +71,10 @@ const BY_CATEGORY: Record<Category, string[]> = {
     'I can return to my goals after a hard day.',
     'Small actions, repeated, are changing my life.',
   ],
+  custom: [],
 }
+
+BY_CATEGORY.custom = BY_CATEGORY.general
 
 export function suggestAffirmations(category: Category, opts: { behavior?: string; obstacle?: string } = {}): string[] {
   const out = [...BY_CATEGORY[category]]

@@ -6,6 +6,7 @@ import { useCollection } from '../../lib/store'
 import { CATEGORY_LABEL, categorize } from '../../lib/engine/categorize'
 import type { Category, Goal } from '../../lib/types'
 import { cleanText, uid } from '../../lib/util'
+import { themeOf } from '../../lib/worlds'
 
 const CATS = Object.keys(CATEGORY_LABEL) as Category[]
 const blank = (): Partial<Goal> => ({ title: '', category: 'general', why: '', identity_statement: '', target_date: null, status: 'active', milestones: [] })
@@ -18,7 +19,7 @@ function GoalForm({ initial, onDone }: { initial: Partial<Goal>; onDone: () => v
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!g.title?.trim()) return
-    await save({ ...g, title: cleanText(g.title, 200), why: cleanText(g.why ?? ''), identity_statement: cleanText(g.identity_statement ?? '', 500) })
+    await save({ ...g, theme: themeOf({ theme: g.theme, category: g.category ?? 'general' }), title: cleanText(g.title, 200), why: cleanText(g.why ?? ''), identity_statement: cleanText(g.identity_statement ?? '', 500) })
     onDone()
   }
   return (
