@@ -25,7 +25,7 @@ Later: routine analysis, night audio mixer + sleep timer, vision board, analytic
 
 ## Stack (free-first)
 - **Frontend:** React + TypeScript + Vite + Tailwind; React Router; Vitest + Testing Library.
-- **Backend:** Supabase (Auth, Postgres + RLS, Storage) via `@supabase/supabase-js`. No custom server.
+- **Data:** local-first IndexedDB (default) or Supabase (Auth, Postgres + RLS) when env vars are set. No custom server.
 - **Hosting:** Cloudflare Pages (static SPA). **PWA:** `vite-plugin-pwa` (Phase 9).
 - **Audio:** `speechSynthesis`, `MediaRecorder`, Web Audio for CC0 background loops.
 - **AI:** none initially. Optional later via Supabase Edge Function proxy, after checking current provider limits.
@@ -35,29 +35,20 @@ Later: routine analysis, night audio mixer + sleep timer, vision board, analytic
 Browser (React SPA / PWA)
  ├─ src/features/*   UI per feature (onboarding, goals, affirmations, advisor, habits, journal, audio, vision)
  ├─ src/lib/engine   pure personalization: templates + profile → plan, scripts, affirmations, advice
- ├─ src/lib/db       thin typed Supabase queries
+ ├─ src/lib/store.ts  Backend interface (local | supabase) + reactive cache + useCollection
  └─ src/components   design system
         │ HTTPS (anon key + user JWT)
-Supabase: Auth · Postgres (RLS user_id = auth.uid()) · Storage (private bucket recordings/{user_id}/…)
+IndexedDB (default, on-device: data + voice recordings)  OR  Supabase: Auth · Postgres (RLS user_id = auth.uid())
 ```
 **Advisor (free-first):** classify question (goal category + intent keywords: spend, time, conflict, habit…) → pick framework (values check, WOOP, 10-10-10, implementation intention, cost/benefit) → fill with user's goals, values, obstacles → reflective questions + practical options + disclaimer. Deterministic, offline, testable.
 
-## Database (draft: `supabase/migrations/0001_init.sql`)
-- `profiles` (id = auth uid, display_name, timezone, onboarding jsonb)
-- `goals` (title, category, why, identity_statement, target_date, status)
-- `affirmations` (goal_id?, text, audio_path?, is_favorite)
-- `visualizations` (goal_id?, title, script, duration_min)
-- `habits` (goal_id?, title, cue, cadence jsonb, active)
-- `habit_logs` (habit_id, log_date, done) — unique(habit_id, log_date)
-- `journal_entries` (kind, title?, body, mood?)
-- Later: `routine_blocks` (P5), `audio_sessions` (P6), `vision_items` (P7)
-
-All rows carry `user_id` → `auth.users on delete cascade`; RLS owner-only on every table.
+## Database (`supabase/migrations/0001_init.sql`)
+Tables mirror `src/lib/types.ts` (snake_case): profiles, goals (milestones jsonb), affirmations, visualizations, habits (minutes, days[]), habit_logs, journal_entries (open_on), routine_blocks, audio_sessions, vision_items. All rows carry `user_id` → auth.users on delete cascade; owner-only RLS; `delete_my_account()` RPC.
 
 ## Roadmap
 | Phase | Scope |
 |---|---|
-| 0 | Spec, architecture, docs, git ✅ |
+| 0–9 | All phases implemented ✅ (see PROJECT_STATE.md) |
 | 1 | Scaffold, design tokens (light/dark), app shell + nav, dashboard (local mock data) |
 | 2 | Supabase auth, migrations + RLS, onboarding + growth plan |
 | 3 | Goals, visualization scripts, affirmation studio (+ voice) |

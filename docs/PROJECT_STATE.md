@@ -1,21 +1,31 @@
 # Project State
 
-**Current phase:** 0 complete → next: Phase 1 (design system, layout, navigation, dashboard shell).
+**Current phase:** Phases 1–9 implemented (MVP feature-complete). Remaining: deployment by owner (needs Cloudflare account) and optional Supabase project setup.
 
 ## Done
-- Spec, MVP, stack, architecture, DB schema draft, roadmap (`docs/ARCHITECTURE.md`)
-- Repo docs, `.gitignore`, `.env.example`, draft migration `supabase/migrations/0001_init.sql` (not applied)
+- Phase 0: spec, architecture, docs
+- Phase 1: Vite + React 19 + TS + Tailwind v4 design system (light/dark tokens), responsive shell (mobile bottom nav / desktop sidebar), dashboard
+- Phase 2: local-first storage (IndexedDB) + optional Supabase auth/sync (email+password), RLS migration, 10-question onboarding → growth plan (habits, identity, if-then plans, WOOP, milestones)
+- Phase 3: goals + milestones, visualization studio (process-focused scripts, 3–15 min, editable, TTS), affirmation studio (suggestions, credibility hint, voice recording, favorites, in-app reminder)
+- Phase 4: Future Self Advisor — deterministic intent → framework engine, personalized with goals/values; crisis-language routing
+- Phase 5: routine mapping + analysis (sleep/free time, gap placement), habits with flexible streaks, daily challenge
+- Phase 6: night audio — TTS narration, procedural ambient sounds (Web Audio), volumes, voice/pace, sleep timer w/ fade, Media Session, history
+- Phase 7: journal (7 kinds, mood, search, sealed future-self letters, weekly review template), vision board (client-compressed images), progress analytics
+- Phase 8: input caps/cleaning, RLS + user-scoped writes (tested), export/import/delete-all, account deletion RPC, a11y (labels, roles, skip link, reduced motion)
+- Phase 9: PWA (vite-plugin-pwa, offline precache, manifest), SPA `_redirects` for Cloudflare Pages
 
 ## Key decisions
-- No backend server; Supabase + RLS. Cloudflare Pages hosting (static).
-- Free-first personalization: deterministic template engine; LLM optional later, server-side only.
-- Audio: Web Speech API + MediaRecorder + small royalty-free loops; recordings in private Supabase Storage bucket.
-- Phase 1 runs local-only (mock/localStorage data) — no Supabase dependency until Phase 2.
+- **Local-first:** works fully offline with no account; Supabase is optional (enabled when `VITE_SUPABASE_*` set).
+- Voice recordings never leave the device (IndexedDB blobs). Vision images stored as compressed JPEG data URLs (EXIF stripped).
+- No LLM. All personalization in `src/lib/engine/` (pure, unit-tested).
+- Ambient sounds are generated, not downloaded (no licensing/assets).
 
-## Known issues / open items
-- GitHub remote not yet connected (`gh` CLI not installed) — see README steps given in session.
-- Verify Supabase free-tier limits (pausing after inactivity, DB/storage caps) before Phase 2.
-- Speech synthesis stops on mobile screen lock; plan pre-recorded/recorded-audio fallback (Phase 6).
+## Known issues / limits
+- Speech synthesis stops on mobile screen lock (documented in UI); recordings in own voice are the fallback.
+- Reminders fire only while the app is open (no push server).
+- Supabase path is unit-tested with a mock only; not yet tested against a live project.
+- Main bundle ~92 KB gzip (includes supabase-js); could lazy-load it if cloud is disabled.
+- Local data is per browser profile; clearing site data deletes it (export first).
 
 ## Next task
-Phase 1: scaffold Vite React-TS + Tailwind + Vitest, design tokens (light/dark), app shell + bottom nav, dashboard placeholder.
+Owner: deploy to Cloudflare Pages (see README). Optional: create Supabase project, run migration, set env vars, test sync end-to-end.
