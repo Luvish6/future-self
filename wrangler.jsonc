@@ -1,0 +1,10 @@
+{
+  // Cloudflare Workers static assets (deployed by `npx wrangler deploy` in Cloudflare's Git build).
+  "name": "future-self",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    // Serve index.html for unknown paths so client-side routes (/goals, /g/:id, …) work on refresh.
+    "not_found_handling": "single-page-application"
+  }
+}

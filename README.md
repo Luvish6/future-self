@@ -27,6 +27,6 @@ npm run build      # typecheck + production build to dist/
 ## Deploy (Cloudflare Pages, free tier)
 1. Cloudflare dashboard → Workers & Pages → Create → Pages → Connect to Git → select this repo.
 2. Build command `npm run build`, output directory `dist`, add env vars from step 3 above if using sync.
-3. Deploy. `public/_redirects` handles SPA routes; the PWA is installable from the browser menu.
+3. Deploy. `wrangler.jsonc` serves `dist/` with SPA fallback (Workers static assets); the PWA is installable from the browser menu.
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/PROJECT_STATE.md](docs/PROJECT_STATE.md).
