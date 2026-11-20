@@ -1,6 +1,6 @@
 # Project State
 
-**Current phase:** v1 MVP complete (phases 0–9). **Requirements updated to v2 "Goal Worlds"** — plan in [ROADMAP_V2.md](ROADMAP_V2.md). Next: v2.1 (P0 foundation). Deploy still pending (owner).
+**Current phase:** v2 Goal Worlds implemented through v2.5 except the built-in image library (v2.3b, awaiting owner approval of CC0 images). Plan in [ROADMAP_V2.md](ROADMAP_V2.md). Deploy still pending (owner).
 
 ## Done
 - Phase 0: spec, architecture, docs
@@ -40,6 +40,14 @@
 
 - **v2.3a done:** `vision_boards` collection (goal_id, title) + items `board_id/size/position`; local schema v3 migration groups existing items into one board per goal (tested); `lib/board.ts` ordering helpers (tested); Vision page rewritten: goal scope, multiple boards (create/rename/delete), add image/quote/milestone/description, edit text, move earlier/later, S/M/L sizes (dense grid). SQL for boards/columns added to 0002.
 
+- **v2.4a:** situation-based Advisor (): new intents ignored/boundary/rejection; interpretation via goal identity (, 2nd person), settle, healthy response, boundaries, example words, avoid, one small step; follow-ups; save; labeled "structured guidance, not AI".
+- **v2.4b:** Evidence Journal ( kind with 5 structured fields), journal goal scope,  deep link from goal page.
+- **v2.4c:** TTS listen per affirmation + "Play all" with speed; goal scope on Night audio, Visualize, Routine; audio sessions store goal_id.
+- **v2.5a:** Future Self Simulator  (6 steps →  journal entry + optional narrated rehearsal script; , tested).
+- **v2.5b:** vision board slideshow (portal overlay, auto-advance, keyboard).
+- **v2.5c:** audio playlists ( collection; affirmations use your recording else TTS, scripts; loop;  tested).
+- Not done (deliberately deferred): freeform drag/resize board canvas, custom-hex theme editor, per-habit reminders, push notifications, multilingual content.
+
 ## Next task
-**v2.3b (needs owner input first):** built-in image library — owner approves a curated CC0/public-domain set (~5–8 images per preset category, WebP ≤80 KB, self-hosted in `public/library/` with `LICENSES.json`), or chooses generated "mood cards" only. Then: library browser on Vision page (category filter, search by tags, multi-select add).
-Owner (anytime): deploy to Cloudflare Pages (README); approve CC0 image list before v2.3.
+**v2.3b — built-in image library:** owner reviews ; approved images get downloaded, resized to WebP ≤80 KB into  with , then a library browser on the Vision page (category filter, tag search, multi-select add).
+Owner (anytime): deploy to Cloudflare Pages (README); optional Supabase setup (run 0001 + 0002).

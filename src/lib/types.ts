@@ -119,6 +119,14 @@ export interface VisionItem extends Base {
   position?: number
 }
 
+export interface PlaylistItem { type: 'affirmation' | 'visualization'; id: ID }
+export interface Playlist extends Base {
+  goal_id: ID | null
+  title: string
+  items: PlaylistItem[]
+  loop: boolean
+}
+
 export interface VisionBoard extends Base {
   goal_id: ID | null
   title: string
@@ -136,9 +144,10 @@ export interface Collections {
   audio_sessions: AudioSession
   vision_items: VisionItem
   vision_boards: VisionBoard
+  playlists: Playlist
 }
 export type CollectionName = keyof Collections
 export const COLLECTIONS: CollectionName[] = [
   'profiles', 'goals', 'affirmations', 'visualizations', 'habits', 'habit_logs',
-  'journal_entries', 'routine_blocks', 'audio_sessions', 'vision_items', 'vision_boards',
+  'journal_entries', 'routine_blocks', 'audio_sessions', 'vision_items', 'vision_boards', 'playlists',
 ]

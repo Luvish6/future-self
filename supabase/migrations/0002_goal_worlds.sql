@@ -47,6 +47,20 @@ alter table public.vision_items
   add column if not exists size text not null default 'S' check (size in ('S','M','L')),
   add column if not exists position integer not null default 0;
 
+create table if not exists public.playlists (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null default auth.uid() references auth.users on delete cascade,
+  created_at timestamptz not null default now(),
+  goal_id uuid references public.goals on delete cascade,
+  title text not null check (char_length(title) between 1 and 120),
+  items jsonb not null default '[]' check (jsonb_typeof(items) = 'array' and jsonb_array_length(items) <= 100),
+  loop boolean not null default false
+);
+create index if not exists playlists_user_idx on public.playlists (user_id);
+alter table public.playlists enable row level security;
+create policy own_rows on public.playlists for all to authenticated
+  using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
+
 -- Evidence Journal + Simulator entries.
 alter table public.journal_entries drop constraint if exists journal_entries_kind_check;
 alter table public.journal_entries add constraint journal_entries_kind_check

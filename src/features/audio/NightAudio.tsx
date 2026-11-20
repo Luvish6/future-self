@@ -7,6 +7,8 @@ import { AMBIENTS, createAmbient, type Ambient } from '../../lib/audio/ambient'
 import { getVoices, narrate, ttsSupported } from '../../lib/audio/narrator'
 import { recordingUrl } from '../../lib/audio/recorder'
 import { fmtMinutes } from '../../lib/util'
+import { playlistSteps, type Step } from '../../lib/audio/playlist'
+import { Playlists } from './Playlists'
 
 type Source = 'none' | 'affirmations' | 'recordings' | string // string = visualization id
 const TIMERS = [0, 10, 20, 30, 45, 60]
@@ -18,8 +20,10 @@ export default function NightAudio() {
   const affs = useCollection('affirmations').rows.filter((a) => !scope.goal || a.goal_id === scope.goal.id)
   const sessions = useCollection('audio_sessions')
   const recorded = affs.filter((a) => a.audio_key)
+  const playlists = useCollection('playlists').rows.filter((p) => !scope.goal || p.goal_id === scope.goal.id)
 
   const [source, setSource] = useState<Source>(params.get('viz') ?? (affs.length ? 'affirmations' : 'none'))
+  const playlist = source.startsWith('pl:') ? playlists.find((p) => `pl:${p.id}` === source) : undefined
   const [ambient, setAmbient] = useState<Ambient>('rain')
   const [ambVol, setAmbVol] = useState(0.35)
   const [voiceVol, setVoiceVol] = useState(0.9)
@@ -59,7 +63,7 @@ export default function NightAudio() {
     return () => clearInterval(id)
   }, [playing, timer])
 
-  const title = source === 'affirmations' ? 'Affirmations' : source === 'recordings' ? 'Your voice' : source === 'none' ? AMBIENTS.find((a) => a.value === ambient)!.label : vizs.find((v) => v.id === source)?.title ?? 'Session'
+  const title = playlist ? playlist.title : source === 'affirmations' ? 'Affirmations' : source === 'recordings' ? 'Your voice' : source === 'none' ? AMBIENTS.find((a) => a.value === ambient)!.label : vizs.find((v) => v.id === source)?.title ?? 'Session'
 
   function playRecordings(i = 0) {
     const a = recorded[i % recorded.length]
@@ -73,13 +77,30 @@ export default function NightAudio() {
     })
   }
 
+  /** Play resolved playlist steps one after another (3s gap), optionally looping. */
+  function playSteps(steps: Step[], loop: boolean, i = 0) {
+    if (!steps.length) return
+    if (i >= steps.length) { if (loop) timers.current.push(setTimeout(() => playSteps(steps, loop, 0), 5000)); return }
+    const next = () => timers.current.push(setTimeout(() => playSteps(steps, loop, i + 1), 3000))
+    const st = steps[i]
+    if (st.kind === 'tts') narr.current = narrate(st.text, { rate, volume: voiceVol, voiceURI, onEnd: next })
+    else recordingUrl(st.key).then((url) => {
+      if (!url) return next()
+      audioEl.current = new Audio(url)
+      audioEl.current.volume = voiceVol
+      audioEl.current.onended = () => { URL.revokeObjectURL(url); next() }
+      audioEl.current.play().catch(next)
+    })
+  }
+
   function start() {
     started.current = Date.now()
     setPlaying(true)
     setRemaining(timer * 60)
     amb.current.play(ambient)
     const opts = { rate, volume: voiceVol, voiceURI, onEnd: () => {} }
-    if (source === 'affirmations' && affs.length) {
+    if (playlist) playSteps(playlistSteps(playlist, affs, vizs), playlist.loop)
+    else if (source === 'affirmations' && affs.length) {
       const script = affs.map((a) => `${a.text} [pause 8]`).join(' ')
       const loop = () => { narr.current = narrate(script, { ...opts, onEnd: () => timers.current.push(setTimeout(loop, 10000)) }) }
       loop()
@@ -130,6 +151,7 @@ export default function NightAudio() {
             { v: 'none', l: 'Sound only' },
             ...(affs.length ? [{ v: 'affirmations', l: 'Affirmations (narrated)' }] : []),
             ...(recorded.length ? [{ v: 'recordings', l: 'Affirmations (your voice)' }] : []),
+            ...playlists.map((p) => ({ v: `pl:${p.id}`, l: `▶ ${p.title}` })),
             ...vizs.map((v) => ({ v: v.id, l: `${v.title} · ${v.duration_min}m` })),
           ].map((o) => (
             <button key={o.v} type="button" role="radio" aria-checked={source === o.v} disabled={playing} onClick={() => setSource(o.v)}
@@ -171,6 +193,8 @@ export default function NightAudio() {
         Browser limits: speech narration usually stops when your phone screen locks or you switch apps (especially on iOS). For screen-off listening, record affirmations in your own voice, keep the screen on with low brightness, or install the app. Background sounds are generated on your device.
       </Notice>
       <p className="text-sm text-muted">Relaxation and mental rehearsal can support winding down and motivation. Listening while asleep has not been shown to “reprogram” the subconscious — the most useful part is the calm, intentional time before sleep.</p>
+
+      <Playlists goalId={scope.goal?.id ?? null} affs={affs} vizs={vizs} disabled={playing} />
 
       <Section title="Recent sessions">
         {history.length === 0 ? <Empty icon="moon" title="No sessions yet" /> : (
