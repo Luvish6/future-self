@@ -5,6 +5,7 @@ import { useProfile } from '../../lib/hooks'
 import { credibilityHint, suggestAffirmations } from '../../lib/engine/affirmations'
 import { deleteRecording, recordingSupported, recordingUrl, saveRecording, startRecording } from '../../lib/audio/recorder'
 import { getReminder, setReminder } from '../../lib/reminders'
+import { narrate, ttsSupported } from '../../lib/audio/narrator'
 import type { Affirmation, Category } from '../../lib/types'
 import { GoalScopeBar, useGoalScope } from '../../components/GoalScope'
 import { CATEGORY_LABEL } from '../../lib/engine/categorize'
@@ -64,6 +65,16 @@ export default function Affirmations() {
   useEffect(() => { if (scope.goal) setGoalId(scope.goal.id) }, [scope.goal])
   const [libCat, setLibCat] = useState<Category | null>(null)
   const [favOnly, setFavOnly] = useState(false)
+  const [speaking, setSpeaking] = useState<string | null>(null)
+  const [rate, setRate] = useState(0.9)
+  const tts = useRef<{ stop(): void } | null>(null)
+  useEffect(() => () => tts.current?.stop(), [])
+  const speak = (key: string, script: string) => {
+    tts.current?.stop()
+    if (speaking === key) return setSpeaking(null)
+    setSpeaking(key)
+    tts.current = narrate(script, { rate, onEnd: () => setSpeaking(null) })
+  }
   const [text, setText] = useState('')
   const [editId, setEditId] = useState<string | null>(null)
   const [reminder, setRem] = useState(getReminder())
@@ -132,7 +143,22 @@ export default function Affirmations() {
         )}
       </Section>
 
-      {rows.length > 0 && <div><Chip active={favOnly} onClick={() => setFavOnly(!favOnly)}>★ Favorites only</Chip></div>}
+      {rows.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <Chip active={favOnly} onClick={() => setFavOnly(!favOnly)}>★ Favorites only</Chip>
+          {ttsSupported() && groups.length > 0 && (
+            <>
+              <Button size="sm" variant="soft" icon={speaking === 'all' ? 'stop' : 'play'}
+                onClick={() => speak('all', groups.flatMap((g) => g.items).map((a) => `${a.text} [pause 4]`).join(' '))}>{speaking === 'all' ? 'Stop' : 'Play all aloud'}</Button>
+              <label className="flex items-center gap-1.5 text-sm text-muted">Speed
+                <select className="field w-auto py-1 text-sm" value={rate} onChange={(e) => setRate(Number(e.target.value))}>
+                  {[0.75, 0.9, 1, 1.15].map((r) => <option key={r} value={r}>{r}×</option>)}
+                </select>
+              </label>
+            </>
+          )}
+        </div>
+      )}
       {groups.length === 0 && rows.length > 0 && <Empty icon="sparkle" title={favOnly ? 'No favorites here yet' : 'No affirmations for this goal yet'}>Add one above or from the library.</Empty>}
       {rows.length === 0 ? <Empty icon="sparkle" title="No affirmations yet">Add one above or pick a suggestion.</Empty> : groups.map((g) => (
         <Section key={g.id ?? 'general'} title={g.title}>
@@ -140,7 +166,7 @@ export default function Affirmations() {
             {g.items.map((a) => (
               <Card as="li" key={a.id} className="flex items-center gap-2 py-3 md:py-3">
                 <p className="flex-1 font-serif text-[17px] leading-snug">{a.text}</p>
-                {a.audio_key && <PlayButton audioKey={a.audio_key} />}
+                {a.audio_key ? <PlayButton audioKey={a.audio_key} /> : ttsSupported() && <IconButton icon={speaking === a.id ? 'stop' : 'play'} label={speaking === a.id ? 'Stop' : 'Listen'} active={speaking === a.id} onClick={() => speak(a.id, a.text)} />}
                 <RecordButton a={a} />
                 <IconButton icon="star" label={a.is_favorite ? 'Unfavorite' : 'Favorite'} active={a.is_favorite} onClick={() => save({ id: a.id, is_favorite: !a.is_favorite })} />
                 <IconButton icon="edit" label="Edit" onClick={() => { setEditId(a.id); setText(a.text); scrollTo({ top: 0, behavior: 'smooth' }) }} />

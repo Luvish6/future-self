@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { GoalScopeBar, useGoalScope } from '../../components/GoalScope'
 import { Button, Card, Empty, Field, IconButton, Notice, Page, Section, Segmented } from '../../components/ui'
 import { Icon } from '../../components/Icon'
 import { useCollection } from '../../lib/store'
@@ -10,6 +11,7 @@ import { cleanText } from '../../lib/util'
 
 export default function Visualize() {
   const [params] = useSearchParams()
+  const scope = useGoalScope()
   const goals = useCollection('goals').rows
   const { rows, save, remove } = useCollection('visualizations')
   const { profile } = useProfile()
@@ -45,6 +47,7 @@ export default function Visualize() {
 
   return (
     <Page title="Visualization studio" subtitle="Mentally rehearse the process — the actions, obstacles and responses — not just the finish line.">
+      <GoalScopeBar scope={scope} />
       <Card>
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -81,7 +84,7 @@ export default function Visualize() {
       <Section title="Saved sessions">
         {rows.length === 0 ? <Empty icon="eye" title="No saved scripts yet">Generate one above, edit it to fit, and save it.</Empty> : (
           <ul className="space-y-2">
-            {[...rows].reverse().map((v) => (
+            {[...rows].filter((v) => !scope.goal || v.goal_id === scope.goal.id).reverse().map((v) => (
               <Card as="li" key={v.id} className="flex items-center gap-2 py-3 md:py-3">
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{v.title}</p>

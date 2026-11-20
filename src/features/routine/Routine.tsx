@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Button, Card, Empty, IconButton, Notice, Page, Section, Segmented } from '../../components/ui'
 import { useCollection } from '../../lib/store'
+import { GoalScopeBar, useGoalScope } from '../../components/GoalScope'
 import { analyzeDay, placeHabits } from '../../lib/engine/routine'
 import type { BlockKind } from '../../lib/types'
 import { cleanText, fmtMinutes, fmtTime } from '../../lib/util'
@@ -16,7 +17,8 @@ export default function Routine() {
 
   const blocks = rows.filter((r) => r.weekday === day).sort((x, y) => x.start.localeCompare(y.start))
   const analysis = useMemo(() => analyzeDay(blocks), [blocks])
-  const active = habits.rows.filter((h) => h.active && (h.days.length === 0 || h.days.includes(day)))
+  const scope = useGoalScope()
+  const active = habits.rows.filter((h) => h.active && (!scope.goal || h.goal_id === scope.goal.id) && (h.days.length === 0 || h.days.includes(day)))
   const suggestions = placeHabits(analysis.gaps, active.map((h) => ({ title: h.title, minutes: h.minutes })))
 
   const add = async (e: React.FormEvent) => {
@@ -33,6 +35,7 @@ export default function Routine() {
 
   return (
     <Page title="Daily routine" subtitle="Map your real schedule, then find realistic room for growth.">
+      <GoalScopeBar scope={scope} />
       <div className="overflow-x-auto"><Segmented label="Weekday" value={day} onChange={setDay} options={WD.map((w, i) => ({ value: i, label: w }))} /></div>
 
       <Card>

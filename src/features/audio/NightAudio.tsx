@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { GoalScopeBar, useGoalScope } from '../../components/GoalScope'
 import { Button, Card, Empty, Field, Notice, Page, Section, Segmented, cx } from '../../components/ui'
 import { useCollection } from '../../lib/store'
 import { AMBIENTS, createAmbient, type Ambient } from '../../lib/audio/ambient'
@@ -12,8 +13,9 @@ const TIMERS = [0, 10, 20, 30, 45, 60]
 
 export default function NightAudio() {
   const [params] = useSearchParams()
-  const vizs = useCollection('visualizations').rows
-  const affs = useCollection('affirmations').rows
+  const scope = useGoalScope()
+  const vizs = useCollection('visualizations').rows.filter((v) => !scope.goal || v.goal_id === scope.goal.id)
+  const affs = useCollection('affirmations').rows.filter((a) => !scope.goal || a.goal_id === scope.goal.id)
   const sessions = useCollection('audio_sessions')
   const recorded = affs.filter((a) => a.audio_key)
 
@@ -103,7 +105,7 @@ export default function NightAudio() {
     else amb.current.stop()
     setPlaying(false)
     const secs = Math.round((Date.now() - started.current) / 1000)
-    if (started.current && secs >= 15) sessions.save({ title, duration_s: secs })
+    if (started.current && secs >= 15) sessions.save({ title, duration_s: secs, goal_id: scope.goal?.id ?? null })
     started.current = 0
   }
 
@@ -111,6 +113,7 @@ export default function NightAudio() {
 
   return (
     <Page title="Night audio" subtitle="Wind down with calm sound and gentle, personalized narration.">
+      <GoalScopeBar scope={scope} />
       <Card className="relative overflow-hidden bg-gradient-to-b from-[#221d3a] to-[#14131a] text-[#eeecf4]">
         <div className="flex flex-col items-center py-6">
           <div className={cx('size-40 rounded-full bg-gradient-to-br from-[#a596f7] to-[#e9a07a] opacity-80 blur-[2px]', playing && 'animate-breathe')} aria-hidden="true" />
