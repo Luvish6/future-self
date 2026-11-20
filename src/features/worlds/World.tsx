@@ -28,6 +28,7 @@ export function GoalSwitcher({ current }: { current?: string }) {
 
 const LINKS: { to: (id: string) => string; label: string; icon: IconName }[] = [
   { to: (id) => `/visualize?goal=${id}`, label: 'Visualize', icon: 'eye' },
+  { to: (id) => '/simulate?goal=' + id, label: 'Rehearse', icon: 'sparkle' },
   { to: (id) => `/advisor?goal=${id}`, label: 'Advisor', icon: 'compass' },
   { to: (id) => `/affirmations?goal=${id}`, label: 'Affirmations', icon: 'sparkle' },
   { to: (id) => `/vision?goal=${id}`, label: 'Vision board', icon: 'image' },
@@ -95,7 +96,7 @@ export default function World() {
         </Section>
       )}
 
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-7">
+      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-8">
         {LINKS.map((l) => (
           <Link key={l.label} to={l.to(goal.id)} className="flex flex-col items-center gap-2 rounded-2xl border border-line bg-surface/80 p-3 text-center text-xs transition hover:border-accent">
             <Icon name={l.icon} className="size-5 text-accent" /> {l.label}

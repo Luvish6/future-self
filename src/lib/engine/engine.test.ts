@@ -6,6 +6,7 @@ import { buildVisualization, toSegments, stripPauses } from './visualization'
 import { analyzeDay, placeHabits } from './routine'
 import { completionRate, flexibleStreak, recoveryMessage, weekCount, weekStart, weeklyRate, weeklyStreak } from './streaks'
 import { isCrisis } from './safety'
+import { obstaclesFor, responseFor, suggestedWords, summarize, toVizInput } from './simulator'
 import { FOLLOW_UPS, followUp, futureLens } from './guidance'
 import { challengesFor, pickDaily, reflectionQuestions } from './daily'
 import { addDays, dayKey } from '../util'
@@ -191,5 +192,28 @@ describe('situation-based advisor', () => {
       for (const f of FOLLOW_UPS) expect(followUp(i, f.id).lines.length).toBeGreaterThan(0)
     expect(futureLens('')).toBe('The person you’re becoming')
     expect(futureLens('I’m becoming someone who treats myself with care and trusts my voice.')).toBe('A version of you who treats yourself with care and trusts your voice')
+  })
+})
+
+describe('future self simulator', () => {
+  const sim = {
+    situation: 'I have a presentation tomorrow and I feel nervous', when: 'tomorrow 10am', place: 'the meeting room', people: 'my team',
+    showUpAs: 'calm and clear', obstacles: ['My mind goes blank', 'Someone disagrees or challenges me'], responses: { 'My mind goes blank': '' },
+    words: '“Here’s what I found.”', action: 'Rehearse the opening out loud twice', actionWhen: 'tonight',
+  }
+  it('suggests situation-specific obstacles and responses', () => {
+    expect(obstaclesFor(sim.situation)).toContain('My mind goes blank')
+    expect(responseFor('My voice shakes')).toMatch(/breathe/)
+    expect(responseFor('something unusual')).toMatch(/small step/)
+    expect(suggestedWords('I want to set a boundary')).toMatch(/“/)
+  })
+  it('summarizes with if-then plans and a real action, and feeds a rehearsal script', () => {
+    const s = summarize(sim)
+    expect(s).toMatch(/If my mind goes blank, then I will pause/)
+    expect(s).toMatch(/My real-world action: Rehearse the opening out loud twice — tonight/)
+    const v = toVizInput(sim, 'Speak with confidence', '')
+    expect(v.obstacle).toBe('my mind goes blank')
+    expect(v.place).toBe('the meeting room with my team')
+    expect(buildVisualization(v)).toContain('my mind goes blank')
   })
 })

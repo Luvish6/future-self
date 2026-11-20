@@ -26,6 +26,7 @@ const KINDS: { value: JournalKind; label: string; prompt: string }[] = [
   { value: 'lesson', label: 'Lesson', prompt: 'What did you learn about yourself or your goal?' },
   { value: 'letter', label: 'Letter to future self', prompt: 'Dear future me… What do you hope I’ve kept doing? What do you want me to remember?' },
   { value: 'weekly', label: 'Weekly review', prompt: '' },
+  { value: 'simulation', label: 'Rehearsal', prompt: 'Plan how you’ll handle an upcoming situation (or use the Simulator).' },
 ]
 const MOODS = ['😞', '😕', '😐', '🙂', '😄']
 

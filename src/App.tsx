@@ -14,6 +14,7 @@ const World = lazy(() => import('./features/worlds/World'))
 const Affirmations = lazy(() => import('./features/affirmations/Affirmations'))
 const Visualize = lazy(() => import('./features/visualize/Visualize'))
 const Advisor = lazy(() => import('./features/advisor/Advisor'))
+const Simulator = lazy(() => import('./features/simulator/Simulator'))
 const Habits = lazy(() => import('./features/habits/Habits'))
 const Routine = lazy(() => import('./features/routine/Routine'))
 const NightAudio = lazy(() => import('./features/audio/NightAudio'))
@@ -55,6 +56,7 @@ function Gate() {
           <Route path="affirmations" element={<Affirmations />} />
           <Route path="visualize" element={<Visualize />} />
           <Route path="advisor" element={<Advisor />} />
+          <Route path="simulate" element={<Simulator />} />
           <Route path="habits" element={<Habits />} />
           <Route path="routine" element={<Routine />} />
           <Route path="audio" element={<NightAudio />} />

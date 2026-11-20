@@ -11,6 +11,7 @@ export const NAV: { to: string; label: string; icon: IconName; primary?: boolean
   { to: '/goals', label: 'Goals', icon: 'target', primary: true },
   { to: '/advisor', label: 'Advisor', icon: 'compass', primary: true },
   { to: '/habits', label: 'Habits', icon: 'check', primary: true },
+  { to: '/simulate', label: 'Simulator', icon: 'sparkle' },
   { to: '/visualize', label: 'Visualize', icon: 'eye' },
   { to: '/affirmations', label: 'Affirmations', icon: 'sparkle' },
   { to: '/audio', label: 'Night audio', icon: 'moon' },
