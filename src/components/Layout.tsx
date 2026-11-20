@@ -5,6 +5,7 @@ import { cx } from './ui'
 import { ThemeDot } from './ThemePicker'
 import { useCollection } from '../lib/store'
 import { themeOf } from '../lib/worlds'
+import { assetUrl } from '../lib/util'
 
 export const NAV: { to: string; label: string; icon: IconName; primary?: boolean }[] = [
   { to: '/', label: 'Today', icon: 'home', primary: true },
@@ -31,7 +32,7 @@ export function Layout() {
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-3 focus:py-2">Skip to content</a>
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-line bg-surface/50 px-3 py-6 backdrop-blur md:flex">
         <div className="mb-6 flex items-center gap-2 px-3">
-          <img src="/icon.svg" alt="" className="size-8" />
+          <img src={assetUrl('/icon.svg')} alt="" className="size-8" />
           <span className="leading-tight"><span className="block font-serif text-xl font-semibold">Future Self</span><span className="block text-xs text-muted">by Luvish</span></span>
         </div>
         <nav aria-label="Main" className="flex-1 space-y-0.5 overflow-y-auto">

@@ -5,7 +5,7 @@ import { useCollection } from '../../lib/store'
 import { CATEGORY_LABEL } from '../../lib/engine/categorize'
 import { byPosition, move, nextPosition, nextSize } from '../../lib/board'
 import type { VisionItem } from '../../lib/types'
-import { cleanText } from '../../lib/util'
+import { assetUrl, cleanText } from '../../lib/util'
 import { Slideshow } from './Slideshow'
 import { LibraryPanel } from './Library'
 
@@ -156,7 +156,7 @@ export default function VisionBoard() {
             <ul className="grid grid-flow-dense grid-cols-2 gap-3 md:grid-cols-3">
               {shown.map((it, idx) => (
                 <li key={it.id} className={cx('group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-surface', SPAN[it.size ?? 'S'])}>
-                  {it.image && <img src={it.image} alt={it.text || 'Vision board image'} className="w-full flex-1 object-cover" loading="lazy" />}
+                  {it.image && <img src={assetUrl(it.image)} alt={it.text || 'Vision board image'} className="w-full flex-1 object-cover" loading="lazy" />}
                   {editing?.id === it.id ? (
                     <form className="p-3" onSubmit={async (e) => { e.preventDefault(); await items.save({ id: it.id, text: cleanText(editing.text, 500) }); setEditing(null) }}>
                       <textarea className="field min-h-16 text-sm" autoFocus maxLength={500} aria-label="Edit text" value={editing.text} onChange={(e) => setEditing({ ...editing, text: e.target.value })} />

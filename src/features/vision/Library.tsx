@@ -5,6 +5,7 @@ import { LIBRARY, libraryCategories, searchLibrary, type LibraryImage } from '..
 import { CATEGORY_LABEL } from '../../lib/engine/categorize'
 import { suggestAffirmations } from '../../lib/engine/affirmations'
 import type { Category } from '../../lib/types'
+import { assetUrl } from '../../lib/util'
 
 const CATS = libraryCategories(LIBRARY)
 
@@ -55,7 +56,7 @@ export function LibraryPanel({ category, onAddImages, onAddCards, onClose }: {
                   <li key={p.file}>
                     <button type="button" aria-pressed={on} onClick={() => toggle(p.file)} title={`${p.title} — ${p.creator}, ${p.license} via ${p.source}`}
                       className={cx('relative block aspect-square w-full overflow-hidden rounded-xl ring-offset-2 ring-offset-surface transition', on ? 'ring-2 ring-accent' : 'hover:opacity-90')}>
-                      <img src={p.file} alt={p.title} loading="lazy" className="size-full object-cover" />
+                      <img src={assetUrl(p.file)} alt={p.title} loading="lazy" className="size-full object-cover" />
                       {on && <span className="absolute right-1.5 top-1.5 grid size-6 place-items-center rounded-full bg-accent text-accent-ink"><Icon name="check" className="size-4" /></span>}
                     </button>
                   </li>
@@ -63,7 +64,7 @@ export function LibraryPanel({ category, onAddImages, onAddCards, onClose }: {
               })}
             </ul>
           )}
-          <p className="text-xs text-muted">Public-domain (CC0) photos from StockSnap, bundled with the app — no tracking or external requests. <a className="underline" href="/library/LICENSES.json" target="_blank" rel="noreferrer">Credits & licenses</a></p>
+          <p className="text-xs text-muted">Public-domain (CC0) photos from StockSnap, bundled with the app — no tracking or external requests. <a className="underline" href={assetUrl('/library/LICENSES.json')} target="_blank" rel="noreferrer">Credits & licenses</a></p>
         </>
       ) : (
         <ul className="space-y-2">

@@ -24,7 +24,7 @@ export function startReminderLoop(getText: () => string | null) {
     const today = now.toDateString()
     const [h, m] = r.time.split(':').map(Number)
     if (r.lastShown !== today && now.getHours() * 60 + now.getMinutes() >= h * 60 + m) {
-      new Notification('Future Self', { body: getText() ?? 'A moment for your affirmation and today’s small step.', icon: '/icon.svg' })
+      new Notification('Future Self', { body: getText() ?? 'A moment for your affirmation and today’s small step.', icon: `${import.meta.env.BASE_URL}icon.svg` })
       setReminder({ ...r, lastShown: today })
     }
   }

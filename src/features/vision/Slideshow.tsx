@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { IconButton } from '../../components/ui'
 import type { VisionItem } from '../../lib/types'
+import { assetUrl } from '../../lib/util'
 
 /** Full-screen, calm slideshow of a board. Keyboard: ←/→ to move, space to pause, Esc to close. */
 export function Slideshow({ items, title, onClose }: { items: VisionItem[]; title: string; onClose: () => void }) {
@@ -38,7 +39,7 @@ export function Slideshow({ items, title, onClose }: { items: VisionItem[]; titl
         <IconButton icon="x" label="Close slideshow" onClick={onClose} className="text-white/80 hover:bg-white/10" />
       </div>
       <div key={it.id} className="animate-rise flex flex-1 flex-col items-center justify-center gap-6 overflow-hidden px-6 pb-6" aria-live="polite">
-        {it.image && <img src={it.image} alt={it.text || 'Vision board image'} className="max-h-[65vh] max-w-full rounded-2xl object-contain shadow-2xl" />}
+        {it.image && <img src={assetUrl(it.image)} alt={it.text || 'Vision board image'} className="max-h-[65vh] max-w-full rounded-2xl object-contain shadow-2xl" />}
         {it.text && (
           <p className={it.kind === 'quote' ? 'max-w-2xl text-center font-serif text-2xl italic leading-snug md:text-4xl' : 'max-w-2xl text-center font-serif text-xl leading-relaxed md:text-2xl'}>
             {it.kind === 'milestone' && <span className="mb-2 block text-xs uppercase tracking-widest text-white/60">Milestone</span>}

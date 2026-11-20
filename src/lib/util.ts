@@ -1,3 +1,7 @@
+/** Resolve an app-absolute path ("/library/x.webp") against the deploy base (e.g. "/future-self/"). Data URLs pass through. */
+export const assetUrl = (p: string | null | undefined) =>
+  !p ? '' : p.startsWith('/') && !p.startsWith('//') ? import.meta.env.BASE_URL + p.slice(1) : p
+
 export const uid = () =>
   typeof crypto !== 'undefined' && 'randomUUID' in crypto
     ? crypto.randomUUID()
