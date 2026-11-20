@@ -61,6 +61,20 @@ alter table public.playlists enable row level security;
 create policy own_rows on public.playlists for all to authenticated
   using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
+-- Vision items may reference bundled library images (/library/...) as well as uploaded JPEG data URLs.
+alter table public.vision_items drop constraint if exists vision_items_image_check;
+alter table public.vision_items add constraint vision_items_image_check check (image is null
+  or (image like 'data:image/jpeg;base64,%' and char_length(image) < 600000)
+  or image ~ '^/library/[a-z_]+/[a-z0-9]+\.webp
+alter table public.journal_entries drop constraint if exists journal_entries_kind_check;
+alter table public.journal_entries add constraint journal_entries_kind_check
+  check (kind in ('reflection','gratitude','letter','win','obstacle','lesson','weekly','evidence','simulation'));
+alter table public.journal_entries
+  add column if not exists evidence jsonb check (evidence is null or pg_column_size(evidence) < 16000);
+
+-- RLS policies from 0001 already cover the new columns (row-level, owner-only).
+);
+
 -- Evidence Journal + Simulator entries.
 alter table public.journal_entries drop constraint if exists journal_entries_kind_check;
 alter table public.journal_entries add constraint journal_entries_kind_check

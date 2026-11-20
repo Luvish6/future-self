@@ -7,6 +7,7 @@ import { byPosition, move, nextPosition, nextSize } from '../../lib/board'
 import type { VisionItem } from '../../lib/types'
 import { cleanText } from '../../lib/util'
 import { Slideshow } from './Slideshow'
+import { LibraryPanel } from './Library'
 
 /** Downscale + re-encode images client-side so they stay small and drop EXIF metadata (e.g. GPS). */
 async function compress(file: File, max = 900): Promise<string> {
@@ -49,6 +50,7 @@ export default function VisionBoard() {
   const [renaming, setRenaming] = useState<string | null>(null)
   const [editing, setEditing] = useState<{ id: string; text: string } | null>(null)
   const [showing, setShowing] = useState(false)
+  const [browsing, setBrowsing] = useState(false)
 
   const shown = board ? byPosition(items.rows.filter((i) => i.board_id === board.id)) : []
   const boardGoal = goals.find((g) => g.id === board?.goal_id)
@@ -74,6 +76,11 @@ export default function VisionBoard() {
     })
     setText('')
     setImage(null)
+  }
+  const addMany = async (rows: Partial<VisionItem>[]) => {
+    if (!board) return
+    let pos = nextPosition(shown)
+    for (const r of rows) await items.save({ goal_id: board.goal_id, category: boardGoal?.category ?? 'general', board_id: board.id, size: 'S', position: pos++, image: null, text: '', kind: 'quote', ...r })
   }
   const reorder = async (id: string, dir: -1 | 1) => {
     for (const ch of move(shown, id, dir)) await items.save(ch)
@@ -114,6 +121,13 @@ export default function VisionBoard() {
         </Empty>
       ) : (
         <>
+          {browsing ? (
+            <LibraryPanel category={boardGoal?.category ?? 'general'} onClose={() => setBrowsing(false)}
+              onAddImages={(imgs) => addMany(imgs.map((i) => ({ kind: 'image', image: i.file, text: '' })))}
+              onAddCards={(texts) => addMany(texts.map((t) => ({ kind: 'quote', text: t })))} />
+          ) : (
+            <Button variant="soft" icon="image" onClick={() => setBrowsing(true)}>Browse image library & mood cards</Button>
+          )}
           <Card>
             <form onSubmit={add} className="space-y-3">
               <Segmented label="Item type" value={kind} onChange={setKind} options={KIND_OPTS} />

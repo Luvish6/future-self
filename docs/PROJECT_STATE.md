@@ -1,6 +1,6 @@
 # Project State
 
-**Current phase:** v2 Goal Worlds implemented through v2.5 except the built-in image library (v2.3b, awaiting owner approval of CC0 images). Plan in [ROADMAP_V2.md](ROADMAP_V2.md). Deploy still pending (owner).
+**Current phase:** v2 Goal Worlds complete (v2.1–v2.5, incl. v2.3b image library). Plan in [ROADMAP_V2.md](ROADMAP_V2.md). Deploy still pending (owner).
 
 ## Done
 - Phase 0: spec, architecture, docs
@@ -48,6 +48,8 @@
 - **v2.5c:** audio playlists (`playlists` collection; affirmations use your recording else TTS, scripts; loop; `lib/audio/playlist.ts` tested).
 - Not done (deliberately deferred): freeform drag/resize board canvas, custom-hex theme editor, per-habit reminders, push notifications, multilingual content.
 
+- **v2.3b:** built-in library — 68 owner-approved CC0 StockSnap photos (curator notes applied) as WebP ≤80 KB in public/library/<category>/ (~2 MB), manifest src/content/imageLibrary.json + public/library/LICENSES.json; Vision page "Browse image library & mood cards" panel (category chips, tag search, multi-select add; mood cards = category affirmations as quotes); library images runtime-cached (not precached); SQL allows /library/ paths. Rebuild tool lived in scratchpad (sharp, not a project dependency).
+
 ## Next task
-**v2.3b — built-in image library:** owner reviews `docs/IMAGE_CANDIDATES.md`; approved images get downloaded, resized to WebP ≤80 KB into `public/library/<category>/` with `LICENSES.json`, then a library browser on the Vision page (category filter, tag search, multi-select add).
-Owner (anytime): deploy to Cloudflare Pages (README); optional Supabase setup (run 0001 + 0002).
+Optional polish: more CC0 photos for thin categories (confidence, finance, health, peace); freeform board canvas; per-habit reminders.
+Owner (anytime): deploy to Cloudflare Pages (README); optional Supabase setup (run 0001 + 0002) and live sync test.

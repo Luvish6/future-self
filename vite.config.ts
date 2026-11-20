@@ -21,7 +21,11 @@ export default defineConfig({
         start_url: '/',
         icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }],
       },
-      workbox: { navigateFallback: '/index.html', globPatterns: ['**/*.{js,css,html,svg}'] },
+      workbox: {
+        navigateFallback: '/index.html',
+        globPatterns: ['**/*.{js,css,html,svg}'], // library photos are cached on first view, not precached
+        runtimeCaching: [{ urlPattern: ({ url }) => url.pathname.startsWith('/library/'), handler: 'CacheFirst', options: { cacheName: 'library-images', expiration: { maxEntries: 120 } } }],
+      },
     }),
   ],
   test: { environment: 'jsdom', globals: true, setupFiles: ['src/test/setup.ts'] },
