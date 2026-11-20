@@ -40,14 +40,14 @@
 
 - **v2.3a done:** `vision_boards` collection (goal_id, title) + items `board_id/size/position`; local schema v3 migration groups existing items into one board per goal (tested); `lib/board.ts` ordering helpers (tested); Vision page rewritten: goal scope, multiple boards (create/rename/delete), add image/quote/milestone/description, edit text, move earlier/later, S/M/L sizes (dense grid). SQL for boards/columns added to 0002.
 
-- **v2.4a:** situation-based Advisor (): new intents ignored/boundary/rejection; interpretation via goal identity (, 2nd person), settle, healthy response, boundaries, example words, avoid, one small step; follow-ups; save; labeled "structured guidance, not AI".
-- **v2.4b:** Evidence Journal ( kind with 5 structured fields), journal goal scope,  deep link from goal page.
+- **v2.4a:** situation-based Advisor (`engine/guidance.ts`): new intents ignored/boundary/rejection; interpretation via goal identity (`futureLens`, 2nd person), settle, healthy response, boundaries, example words, avoid, one small step; follow-ups; save; labeled "structured guidance, not AI".
+- **v2.4b:** Evidence Journal (`evidence` kind with 5 structured fields), journal goal scope, `/journal?new=evidence` deep link from goal page.
 - **v2.4c:** TTS listen per affirmation + "Play all" with speed; goal scope on Night audio, Visualize, Routine; audio sessions store goal_id.
-- **v2.5a:** Future Self Simulator  (6 steps →  journal entry + optional narrated rehearsal script; , tested).
+- **v2.5a:** Future Self Simulator `/simulate` (6 steps → `simulation` journal entry + optional narrated rehearsal script; `engine/simulator.ts`, tested).
 - **v2.5b:** vision board slideshow (portal overlay, auto-advance, keyboard).
-- **v2.5c:** audio playlists ( collection; affirmations use your recording else TTS, scripts; loop;  tested).
+- **v2.5c:** audio playlists (`playlists` collection; affirmations use your recording else TTS, scripts; loop; `lib/audio/playlist.ts` tested).
 - Not done (deliberately deferred): freeform drag/resize board canvas, custom-hex theme editor, per-habit reminders, push notifications, multilingual content.
 
 ## Next task
-**v2.3b — built-in image library:** owner reviews ; approved images get downloaded, resized to WebP ≤80 KB into  with , then a library browser on the Vision page (category filter, tag search, multi-select add).
+**v2.3b — built-in image library:** owner reviews `docs/IMAGE_CANDIDATES.md`; approved images get downloaded, resized to WebP ≤80 KB into `public/library/<category>/` with `LICENSES.json`, then a library browser on the Vision page (category filter, tag search, multi-select add).
 Owner (anytime): deploy to Cloudflare Pages (README); optional Supabase setup (run 0001 + 0002).
