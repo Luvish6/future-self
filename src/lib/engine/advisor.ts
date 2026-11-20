@@ -1,3 +1,5 @@
+import { guidanceFor, type Guidance, type Intent } from './guidance'
+export type { Intent }
 import type { Category } from '../types'
 import { categorize, CATEGORY_LABEL } from './categorize'
 import { CRISIS_MESSAGE, DISCLAIMER, isCrisis } from './safety'
@@ -17,11 +19,14 @@ export interface AdvisorReply {
   nextStep: string
   disclaimer: string
   crisis?: boolean
+  guidance: Guidance | null
 }
 
-type Intent = 'purchase' | 'priority' | 'procrastination' | 'conflict' | 'fear' | 'opportunity' | 'health' | 'setback' | 'decision'
 
 const INTENTS: [Intent, RegExp][] = [
+  ['ignored', /\b(ignor\w*|left on read|no reply|(didn'?t|doesn'?t|won'?t) (text|reply|call|answer)( me)?( back)?|feel (unloved|unwanted|invisible|left out)|not a priority)\b/i],
+  ['boundary', /\b(boundar\w*|say no|saying no|people[- ]pleas\w*|taken advantage|overstep\w*|can'?t say no)\b/i],
+  ['rejection', /\b(rejected|rejection|turned down|didn'?t get (the|a) (job|role|place|offer)|declined my)\b/i],
   ['purchase', /\b(buy|purchase|spend|afford|expensive|price|cost|splurge|order|upgrade|subscription|loan|credit card)\b/i],
   ['procrastination', /\b(procrastinat\w*|motivat\w*|lazy|can'?t start|putting off|avoid(ing)?|don'?t feel like|skip(ping)?)\b/i],
   ['setback', /\b(failed|failure|messed up|relapse|missed|broke my streak|gave up|setback|mistake)\b/i],
@@ -37,6 +42,21 @@ export function detectIntent(q: string): Intent {
 }
 
 const FRAMEWORKS: Record<Intent, { name: string; questions: string[]; options: string[] }> = {
+  ignored: {
+    name: 'Secure-connection lens',
+    questions: ['What do you know for sure, and what are you guessing?', 'What do you need from this relationship?', 'How would you want to feel about your response tomorrow?'],
+    options: ['Send one calm, honest message.', 'Give it a little time before reading too much into it.', 'Reach out to someone else who makes you feel valued.'],
+  },
+  boundary: {
+    name: 'Kind, clear boundaries',
+    questions: ['What exactly are you saying no (or yes) to?', 'What happens to your energy if nothing changes?', 'What would you do if the boundary isn’t respected?'],
+    options: ['Say it simply without over-explaining.', 'Offer an alternative you genuinely want to give.', 'Practise the sentence out loud first.'],
+  },
+  rejection: {
+    name: 'Learn and continue',
+    questions: ['What is one thing you can learn from this?', 'What went well that you can keep doing?', 'What’s the next opportunity you can pursue?'],
+    options: ['Ask for feedback.', 'Note one improvement and apply it next time.', 'Keep your pipeline moving this week.'],
+  },
   purchase: {
     name: 'Values-based spending check',
     questions: [
@@ -166,7 +186,7 @@ export function advise(question: string, ctx: AdvisorContext): AdvisorReply {
     return {
       intent: 'decision', framework: 'Support', summary: CRISIS_MESSAGE,
       questions: [], options: [], nextStep: 'Reach out to someone you trust or a helpline now.',
-      disclaimer: DISCLAIMER, crisis: true,
+      disclaimer: DISCLAIMER, crisis: true, guidance: null,
     }
   }
   const intent = detectIntent(q)
@@ -196,7 +216,8 @@ export function advise(question: string, ctx: AdvisorContext): AdvisorReply {
     summary,
     questions: questions.slice(0, 4),
     options: options.slice(0, 5),
-    nextStep: 'Pick one option and decide when you’ll act on it. You can journal about the result afterward.',
+    nextStep: guidanceFor(intent).action,
+    guidance: guidanceFor(intent, goal?.identity_statement),
     disclaimer: intent === 'purchase' || intent === 'health' || intent === 'fear' ? DISCLAIMER : 'Reflective coaching only — you know your situation best.',
   }
 }

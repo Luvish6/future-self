@@ -6,6 +6,7 @@ import { buildVisualization, toSegments, stripPauses } from './visualization'
 import { analyzeDay, placeHabits } from './routine'
 import { completionRate, flexibleStreak, recoveryMessage, weekCount, weekStart, weeklyRate, weeklyStreak } from './streaks'
 import { isCrisis } from './safety'
+import { FOLLOW_UPS, followUp, futureLens } from './guidance'
 import { challengesFor, pickDaily, reflectionQuestions } from './daily'
 import { addDays, dayKey } from '../util'
 import type { Onboarding } from '../types'
@@ -162,5 +163,33 @@ describe('daily goal experience', () => {
     expect(challengesFor('custom', []).length).toBeGreaterThan(0)
     expect(reflectionQuestions([])).toHaveLength(3)
     expect(reflectionQuestions(['Q'])).toEqual(['Q'])
+  })
+})
+
+describe('situation-based advisor', () => {
+  const ctx = { goals: [{ title: 'Feel loved and secure', category: 'love' as const, why: '', identity_statement: 'I’m becoming someone who feels secure and valued — one step at a time.' }], values: [], obstacles: '' }
+  it('detects the spec scenarios', () => {
+    expect(detectIntent('I feel ignored by someone important to me')).toBe('ignored')
+    expect(detectIntent("I'm afraid to speak in a meeting")).toBe('fear')
+    expect(detectIntent("I'm tempted to spend money impulsively")).toBe('purchase')
+    expect(detectIntent("I'm struggling to set boundaries")).toBe('boundary')
+    expect(detectIntent('I received a rejection and feel discouraged')).toBe('rejection')
+  })
+  it('gives full, goal-anchored, non-predictive guidance', () => {
+    const r = advise('I feel ignored by someone important to me. How would my future self respond?', ctx)
+    const g = r.guidance!
+    expect(g.interpret.startsWith('A version of you who feels secure and valued')).toBe(true)
+    expect(g.interpret).toMatch(/might/)
+    for (const k of ['regulate', 'healthy', 'boundaries', 'action'] as const) expect(g[k].length).toBeGreaterThan(20)
+    expect(g.say.length).toBeGreaterThan(0)
+    expect(g.avoid.length).toBeGreaterThan(0)
+    expect(r.nextStep).toBe(g.action)
+    expect(JSON.stringify(r)).not.toMatch(/\b(will definitely|guarantee|your future self will)\b/i)
+  })
+  it('answers every follow-up for every intent', () => {
+    for (const i of ['ignored', 'boundary', 'rejection', 'purchase', 'fear', 'decision'] as const)
+      for (const f of FOLLOW_UPS) expect(followUp(i, f.id).lines.length).toBeGreaterThan(0)
+    expect(futureLens('')).toBe('The person you’re becoming')
+    expect(futureLens('I’m becoming someone who treats myself with care and trusts my voice.')).toBe('A version of you who treats yourself with care and trusts your voice')
   })
 })
