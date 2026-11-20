@@ -101,7 +101,7 @@ export default function Dashboard() {
                         <span className={cx('block', done && 'text-muted line-through')}>{h.title}</span>
                         <span className="text-xs text-muted">{h.cue ? `${h.cue} · ` : ''}{h.minutes} min</span>
                       </span>
-                      {streak > 1 && <span className="text-xs text-muted">{streak} days</span>}
+                      {streak > 1 && !h.weekly_target && <span className="text-xs text-muted">{streak} days</span>}
                     </button>
                   </li>
                 )

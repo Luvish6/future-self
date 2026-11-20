@@ -67,6 +67,7 @@ export interface Habit extends Base {
   cue: string
   minutes: number
   days: number[] // 0=Sun..6=Sat; empty = every day
+  weekly_target?: number | null // N times per week on any days (overrides days)
   active: boolean
 }
 

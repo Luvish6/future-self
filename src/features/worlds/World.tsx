@@ -6,19 +6,7 @@ import { useCollection } from '../../lib/store'
 import { setActiveGoal, useHabitLogs } from '../../lib/hooks'
 import { CATEGORY_LABEL } from '../../lib/engine/categorize'
 import { isScheduled } from '../../lib/engine/streaks'
-import { themeOf } from '../../lib/worlds'
-import type { Goal } from '../../lib/types'
-
-/** Scope the page background and tokens to a goal's theme while mounted. */
-export function useWorldTheme(goal?: Pick<Goal, 'theme' | 'category'>) {
-  const theme = goal ? themeOf(goal) : undefined
-  useEffect(() => {
-    const el = document.documentElement
-    if (theme && theme !== 'neutral') el.dataset.world = theme
-    else delete el.dataset.world
-    return () => { delete el.dataset.world }
-  }, [theme])
-}
+import { useWorldTheme } from '../../components/GoalScope'
 
 export function GoalSwitcher({ current }: { current?: string }) {
   const nav = useNavigate()
@@ -40,7 +28,7 @@ export function GoalSwitcher({ current }: { current?: string }) {
 const LINKS: { to: (id: string) => string; label: string; icon: IconName }[] = [
   { to: (id) => `/visualize?goal=${id}`, label: 'Visualize', icon: 'eye' },
   { to: () => '/advisor', label: 'Advisor', icon: 'compass' },
-  { to: () => '/affirmations', label: 'Affirmations', icon: 'sparkle' },
+  { to: (id) => `/affirmations?goal=${id}`, label: 'Affirmations', icon: 'sparkle' },
   { to: () => '/vision', label: 'Vision board', icon: 'image' },
   { to: () => '/journal', label: 'Journal', icon: 'book' },
   { to: () => '/audio', label: 'Night audio', icon: 'moon' },
@@ -75,7 +63,7 @@ export default function World() {
       </div>
 
       <Section title="Today’s actions">
-        {todays.length === 0 ? <Empty icon="check" title="No habits for this goal today" action={<Link className="text-accent" to="/habits">Add a habit</Link>} /> : (
+        {todays.length === 0 ? <Empty icon="check" title="No habits for this goal today" action={<Link className="text-accent" to={`/habits?goal=${goal.id}`}>Add a habit</Link>} /> : (
           <Card className="p-2 md:p-2">
             <ul>
               {todays.map((h) => {
@@ -96,7 +84,7 @@ export default function World() {
       </Section>
 
       {affs.length > 0 && (
-        <Section title="Affirmations" action={<Link to="/affirmations" className="text-sm text-accent">Manage</Link>}>
+        <Section title="Affirmations" action={<Link to={`/affirmations?goal=${goal.id}`} className="text-sm text-accent">Manage</Link>}>
           <ul className="space-y-2">
             {affs.slice(0, 3).map((a) => <Card as="li" key={a.id} className="py-3 font-serif text-lg md:py-3">{a.text}</Card>)}
           </ul>

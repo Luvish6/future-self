@@ -1,7 +1,7 @@
 import { Card, Empty, Page, Progress, Section } from '../../components/ui'
 import { useCollection } from '../../lib/store'
 import { useHabitLogs } from '../../lib/hooks'
-import { completionRate, isScheduled } from '../../lib/engine/streaks'
+import { completionRate, isScheduled, weeklyRate } from '../../lib/engine/streaks'
 import { addDays, dayKey } from '../../lib/util'
 
 export default function ProgressPage() {
@@ -56,7 +56,8 @@ export default function ProgressPage() {
         <Section title="Habits · last 30 days">
           <Card className="space-y-3">
             {habits.map((h) => {
-              const r = completionRate(byHabit.get(h.id) ?? new Set(), h.days, 30, today, h.created_at.slice(0, 10))
+              const set = byHabit.get(h.id) ?? new Set<string>(), since = h.created_at.slice(0, 10)
+              const r = h.weekly_target ? weeklyRate(set, h.weekly_target, today, 4, since) : completionRate(set, h.days, 30, today, since)
               return (
                 <div key={h.id}>
                   <div className="mb-1 flex justify-between text-sm"><span>{h.title}</span><span className="text-muted">{Math.round(r * 100)}%</span></div>

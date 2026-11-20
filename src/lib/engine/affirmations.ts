@@ -34,6 +34,8 @@ const BY_CATEGORY: Record<Category, string[]> = {
   confidence: [
     'I can feel nervous and still speak up.',
     'Each conversation I start is practice, not a test.',
+    'My opinions deserve consideration.',
+    'I become more capable through practice.',
     'My voice is worth hearing, even when it shakes.',
   ],
   productivity: [

@@ -9,6 +9,9 @@ alter table public.goals
   add column if not exists description text not null default '' check (char_length(description) <= 1000),
   add column if not exists reflection_questions text[] not null default '{}' check (cardinality(reflection_questions) <= 12);
 
+alter table public.habits
+  add column if not exists weekly_target smallint check (weekly_target between 1 and 7);
+
 -- Backfill suggested themes for existing goals (mirrors defaultTheme() in src/lib/worlds.ts).
 update public.goals set theme = case
   when category in ('love','self_love','relationships') then 'love'

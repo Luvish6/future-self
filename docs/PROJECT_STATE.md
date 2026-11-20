@@ -32,7 +32,9 @@
 
 - **v2.1b done:** content packs `src/content/worlds.ts` (10 presets + custom; ethics/completeness tests), `/goals/new` (pick preset or custom → editable checklists for affirmations, habits, milestones, reflection questions + theme picker), `/g/:goalId` world page (scoped `data-world` on `<html>`, identity hero, today’s goal habits, affirmations, milestones, reflection, quick links), `GoalSwitcher`, sidebar "Goal worlds" list, dashboard worlds strip, theme picker in goal edit. Goal gained optional `description`, `reflection_questions` (added to 0002 SQL). Gradient heroes use `text-accent-ink` for contrast.
 
+- **v2.2a done:** `components/GoalScope.tsx` (`useGoalScope` = `?goal=` scope + world theme; `GoalScopeBar` chips; `useWorldTheme` moved here). Affirmations: scoped list, category-browsable library (adds to scoped goal), favorites filter. Habits: scoped list, category library picker, schedule = every day / specific days / N× per week (`weekly_target`; `weekCount`/`weeklyStreak`/`weeklyRate`, Monday weeks, tested), Progress uses weekly rate. World page links pass `?goal=`. `weekly_target` added to 0002 SQL.
+- Known gap: per-habit reminders not yet (single in-app daily reminder only).
+
 ## Next task
-**v2.2a:** scope existing feature pages to the active goal (`?goal=` / active goal filter + "All goals" toggle) for Affirmations and Habits, with per-world affirmation library browsing (favorites) and habit library picker; weekly targets on habits.
-Then v2.2b: daily goal experience on `/g/:goalId` (today's affirmation, viz, one challenge, mood/reflection, all skippable).
+**v2.2b:** daily goal experience on `/g/:goalId` (today's affirmation, viz, one challenge, mood/reflection, all skippable).
 Owner (anytime): deploy to Cloudflare Pages (README); approve CC0 image list before v2.3.

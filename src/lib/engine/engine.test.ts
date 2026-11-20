@@ -4,7 +4,7 @@ import { advise, detectIntent } from './advisor'
 import { credibilityHint, suggestAffirmations } from './affirmations'
 import { buildVisualization, toSegments, stripPauses } from './visualization'
 import { analyzeDay, placeHabits } from './routine'
-import { completionRate, flexibleStreak, recoveryMessage } from './streaks'
+import { completionRate, flexibleStreak, recoveryMessage, weekCount, weekStart, weeklyRate, weeklyStreak } from './streaks'
 import { isCrisis } from './safety'
 import { addDays, dayKey } from '../util'
 import type { Onboarding } from '../types'
@@ -122,5 +122,26 @@ describe('streaks', () => {
     expect(completionRate(set(0), [], 30, today, since)).toBe(1)
     expect(recoveryMessage(set(), [], today, since)).toBeNull()
     expect(flexibleStreak(set(0, 3, 4), [], today).graceUsed).toBe(false)
+  })
+})
+
+describe('weekly targets', () => {
+  // 2026-11-20 is a Friday; its week starts Monday 2026-11-16.
+  const fri = new Date(2026, 10, 20)
+  const days = (...ds: string[]) => new Set(ds)
+  it('counts by Monday-based week', () => {
+    expect(dayKey(weekStart(fri))).toBe('2026-11-16')
+    expect(weekCount(days('2026-11-16', '2026-11-20', '2026-11-15'), fri)).toBe(2)
+    expect(weekCount(days('2026-11-15'), fri, 1)).toBe(1)
+  })
+  it('streak counts met weeks; an unfinished current week never breaks it', () => {
+    const prev2 = ['2026-11-02', '2026-11-04', '2026-11-06'], prev1 = ['2026-11-09', '2026-11-10', '2026-11-12']
+    expect(weeklyStreak(days(...prev2, ...prev1), 3, fri)).toBe(2)
+    expect(weeklyStreak(days(...prev2, ...prev1, '2026-11-16', '2026-11-17', '2026-11-18'), 3, fri)).toBe(3)
+    expect(weeklyStreak(days(...prev2), 3, fri)).toBe(0)
+  })
+  it('rate averages target share and respects creation date', () => {
+    expect(weeklyRate(days('2026-11-16', '2026-11-17', '2026-11-18'), 3, fri, 4, '2026-11-16')).toBe(1)
+    expect(weeklyRate(days('2026-11-16'), 2, fri, 1)).toBe(0.5)
   })
 })

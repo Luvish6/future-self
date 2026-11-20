@@ -5,7 +5,10 @@ import { useProfile } from '../../lib/hooks'
 import { credibilityHint, suggestAffirmations } from '../../lib/engine/affirmations'
 import { deleteRecording, recordingSupported, recordingUrl, saveRecording, startRecording } from '../../lib/audio/recorder'
 import { getReminder, setReminder } from '../../lib/reminders'
-import type { Affirmation } from '../../lib/types'
+import type { Affirmation, Category } from '../../lib/types'
+import { GoalScopeBar, useGoalScope } from '../../components/GoalScope'
+import { CATEGORY_LABEL } from '../../lib/engine/categorize'
+import { PRESETS } from '../../content/worlds'
 import { cleanText } from '../../lib/util'
 
 function RecordButton({ a }: { a: Affirmation }) {
@@ -56,13 +59,18 @@ export default function Affirmations() {
   const { rows, save, remove } = useCollection('affirmations')
   const goals = useCollection('goals').rows
   const { profile } = useProfile()
-  const [goalId, setGoalId] = useState<string | null>(goals[0]?.id ?? null)
+  const scope = useGoalScope()
+  const [goalId, setGoalId] = useState<string | null>(scope.goal?.id ?? goals[0]?.id ?? null)
+  useEffect(() => { if (scope.goal) setGoalId(scope.goal.id) }, [scope.goal])
+  const [libCat, setLibCat] = useState<Category | null>(null)
+  const [favOnly, setFavOnly] = useState(false)
   const [text, setText] = useState('')
   const [editId, setEditId] = useState<string | null>(null)
   const [reminder, setRem] = useState(getReminder())
   const goal = goals.find((g) => g.id === goalId)
   const hint = credibilityHint(text)
-  const suggestions = suggestAffirmations(goal?.category ?? 'general', {
+  const cat = libCat ?? goal?.category ?? 'general'
+  const suggestions = suggestAffirmations(cat, libCat ? {} : {
     behavior: profile?.onboarding?.behaviors.split(',')[0],
     obstacle: profile?.onboarding?.obstacles.split(',')[0],
   }).filter((s) => !rows.some((r) => r.text === s))
@@ -82,11 +90,13 @@ export default function Affirmations() {
   }
 
   const groups = [...goals.map((g) => ({ id: g.id as string | null, title: g.title })), { id: null, title: 'General' }]
-    .map((g) => ({ ...g, items: rows.filter((r) => (r.goal_id ?? null) === g.id || (g.id === null && r.goal_id && !goals.some((x) => x.id === r.goal_id))) }))
+    .filter((g) => !scope.goal || g.id === scope.goal.id)
+    .map((g) => ({ ...g, items: rows.filter((r) => !favOnly || r.is_favorite).filter((r) => (r.goal_id ?? null) === g.id || (g.id === null && r.goal_id && !goals.some((x) => x.id === r.goal_id))) }))
     .filter((g) => g.items.length)
 
   return (
     <Page title="Affirmations" subtitle="Believable statements that point you toward who you’re becoming.">
+      <GoalScopeBar scope={scope} />
       <Card>
         <form onSubmit={submit} className="space-y-3">
           <Field label={editId ? 'Edit affirmation' : 'Write your own'}>{(id) => <textarea id={id} className="field min-h-20" maxLength={500} value={text} onChange={(e) => setText(e.target.value)} placeholder="I’m learning to…" />}</Field>
@@ -104,19 +114,26 @@ export default function Affirmations() {
         </form>
       </Card>
 
-      {suggestions.length > 0 && (
-        <Section title="Suggestions for you">
+      <Section title="Affirmation library" action={goal && <span className="text-xs text-muted">Adds to “{goal.title}”</span>}>
+        <div role="group" aria-label="Library category" className="-mx-4 mb-3 flex gap-1.5 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:px-0">
+          {PRESETS.map((p) => (
+            <Chip key={p.category} active={cat === p.category} onClick={() => setLibCat(p.category)}><span className="whitespace-nowrap">{CATEGORY_LABEL[p.category]}</span></Chip>
+          ))}
+        </div>
+        {suggestions.length === 0 ? <p className="text-sm text-muted">You’ve added everything from this category.</p> : (
           <ul className="space-y-2">
-            {suggestions.slice(0, 4).map((s) => (
+            {suggestions.slice(0, 8).map((s) => (
               <li key={s} className="flex items-center gap-2 rounded-xl bg-surface-2/60 px-4 py-2.5 text-sm">
                 <span className="flex-1">{s}</span>
                 <Button size="sm" variant="soft" icon="plus" onClick={() => save({ text: s, goal_id: goalId, audio_key: null, is_favorite: false })}>Add</Button>
               </li>
             ))}
           </ul>
-        </Section>
-      )}
+        )}
+      </Section>
 
+      {rows.length > 0 && <div><Chip active={favOnly} onClick={() => setFavOnly(!favOnly)}>★ Favorites only</Chip></div>}
+      {groups.length === 0 && rows.length > 0 && <Empty icon="sparkle" title={favOnly ? 'No favorites here yet' : 'No affirmations for this goal yet'}>Add one above or from the library.</Empty>}
       {rows.length === 0 ? <Empty icon="sparkle" title="No affirmations yet">Add one above or pick a suggestion.</Empty> : groups.map((g) => (
         <Section key={g.id ?? 'general'} title={g.title}>
           <ul className="space-y-2">
