@@ -41,6 +41,22 @@ export default function Journal() {
   const scope = useGoalScope()
   const [params] = useSearchParams()
   const [opened, setOpened] = useState(false)
+  const TEMPLATES: Record<string, { kind: JournalKind; title: string; body: string }> = {
+    bestself: {
+      kind: 'reflection', title: 'My best possible self',
+      body: 'Imagine yourself a year from now. You’ve worked hard and things have gone as well as they realistically could. Write for about 15 minutes: what does a normal day look like? What have you done to get there? How do you feel?\n\n',
+    },
+    fromfuture: {
+      kind: 'letter', title: 'A letter from my future self',
+      body: 'Dear present me,\n\nI’m writing from a year from now. Here’s what I want you to know about the next few months — what helped, what to keep doing, and what to let go of:\n\n',
+    },
+  }
+  const tpl = TEMPLATES[params.get('new') ?? '']
+  if (!opened && tpl) {
+    setOpened(true)
+    setKind(tpl.kind)
+    setDraft({ kind: tpl.kind, title: tpl.title, body: tpl.body, mood: null, open_on: null, goal_id: scope.goal?.id ?? null, evidence: null })
+  }
   if (!opened && params.get('new') === 'evidence') {
     setOpened(true)
     setKind('evidence')

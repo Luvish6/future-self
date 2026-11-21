@@ -14,6 +14,8 @@ const GENERIC = [
   'Notice one moment today that fits who you’re becoming',
   'Tell someone about a small step you took',
   'Remove one obstacle that makes your habit harder',
+  'For the next hour, make one choice the way the person you’re becoming would',
+  'Do one small thing your future self does — then log it as evidence',
 ]
 
 export function challengesFor(category: Category, existingHabits: string[]) {
