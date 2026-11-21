@@ -9,6 +9,10 @@ import { recordingUrl } from '../../lib/audio/recorder'
 import { fmtMinutes } from '../../lib/util'
 import { playlistSteps, type Step } from '../../lib/audio/playlist'
 import { Playlists } from './Playlists'
+import { Link } from 'react-router-dom'
+import { MEDITATIONS, SLEEP_SETS, sleepScript } from '../../content/meditations'
+import { CATEGORY_LABEL } from '../../lib/engine/categorize'
+import type { Category } from '../../lib/types'
 
 type Source = 'none' | 'affirmations' | 'recordings' | string // string = visualization id
 const TIMERS = [0, 10, 20, 30, 45, 60]
@@ -22,7 +26,7 @@ export default function NightAudio() {
   const recorded = affs.filter((a) => a.audio_key)
   const playlists = useCollection('playlists').rows.filter((p) => !scope.goal || p.goal_id === scope.goal.id)
 
-  const [source, setSource] = useState<Source>(params.get('viz') ?? (affs.length ? 'affirmations' : 'none'))
+  const [source, setSource] = useState<Source>(params.get('viz') ?? (affs.length ? 'affirmations' : `set:${scope.goal && SLEEP_SETS.includes(scope.goal.category) ? scope.goal.category : 'self_love'}`))
   const playlist = source.startsWith('pl:') ? playlists.find((p) => `pl:${p.id}` === source) : undefined
   const [ambient, setAmbient] = useState<Ambient>('rain')
   const [ambVol, setAmbVol] = useState(0.35)
@@ -55,7 +59,7 @@ export default function NightAudio() {
   }, [])
   useEffect(() => { amb.current.setVolume(ambVol) }, [ambVol])
   // Rows load async; default to affirmations once they arrive (unless a script was requested).
-  useEffect(() => { if (!params.get('viz') && affs.length) setSource((s) => (s === 'none' ? 'affirmations' : s)) }, [affs.length > 0]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!params.get('viz') && affs.length) setSource((s) => (s === 'none' || s.startsWith('set:') ? 'affirmations' : s)) }, [affs.length > 0]) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (audioEl.current) audioEl.current.volume = voiceVol }, [voiceVol])
   useEffect(() => {
     if (!playing || !timer) return
@@ -63,7 +67,9 @@ export default function NightAudio() {
     return () => clearInterval(id)
   }, [playing, timer])
 
-  const title = playlist ? playlist.title : source === 'affirmations' ? 'Affirmations' : source === 'recordings' ? 'Your voice' : source === 'none' ? AMBIENTS.find((a) => a.value === ambient)!.label : vizs.find((v) => v.id === source)?.title ?? 'Session'
+  const builtIn = source.startsWith('set:') ? (source.slice(4) as Category) : null
+  const meditation = source.startsWith('med:') ? MEDITATIONS.find((m) => `med:${m.id}` === source) : undefined
+  const title = builtIn ? `${CATEGORY_LABEL[builtIn]} affirmations` : meditation ? meditation.title : playlist ? playlist.title : source === 'affirmations' ? 'Affirmations' : source === 'recordings' ? 'Your voice' : source === 'none' ? AMBIENTS.find((a) => a.value === ambient)!.label : vizs.find((v) => v.id === source)?.title ?? 'Session'
 
   function playRecordings(i = 0) {
     const a = recorded[i % recorded.length]
@@ -99,7 +105,12 @@ export default function NightAudio() {
     setRemaining(timer * 60)
     amb.current.play(ambient)
     const opts = { rate, volume: voiceVol, voiceURI, onEnd: () => {} }
-    if (playlist) playSteps(playlistSteps(playlist, affs, vizs), playlist.loop)
+    if (builtIn) {
+      const script = sleepScript(builtIn)
+      const loop = () => { narr.current = narrate(script, { rate: Math.min(rate, 0.8), volume: voiceVol, voiceURI, onEnd: () => timers.current.push(setTimeout(loop, 15000)) }) }
+      loop()
+    } else if (meditation) narr.current = narrate(meditation.script, { rate: Math.min(rate, 0.85), volume: voiceVol, voiceURI })
+    else if (playlist) playSteps(playlistSteps(playlist, affs, vizs), playlist.loop)
     else if (source === 'affirmations' && affs.length) {
       const script = affs.map((a) => `${a.text} [pause 8]`).join(' ')
       const loop = () => { narr.current = narrate(script, { ...opts, onEnd: () => timers.current.push(setTimeout(loop, 10000)) }) }
@@ -149,6 +160,9 @@ export default function NightAudio() {
         <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Narration source">
           {[
             { v: 'none', l: 'Sound only' },
+            ...MEDITATIONS.map((m) => ({ v: `med:${m.id}`, l: `🧘 ${m.title} · ${m.minutes}m` })),
+            ...[...new Set([scope.goal?.category, ...SLEEP_SETS].filter((c): c is Category => !!c && SLEEP_SETS.includes(c)))]
+              .map((c) => ({ v: `set:${c}`, l: `🌙 ${CATEGORY_LABEL[c]} affirmations` })),
             ...(affs.length ? [{ v: 'affirmations', l: 'Affirmations (narrated)' }] : []),
             ...(recorded.length ? [{ v: 'recordings', l: 'Affirmations (your voice)' }] : []),
             ...playlists.map((p) => ({ v: `pl:${p.id}`, l: `▶ ${p.title}` })),
@@ -192,7 +206,10 @@ export default function NightAudio() {
       <Notice tone="warn">
         Browser limits: speech narration usually stops when your phone screen locks or you switch apps (especially on iOS). For screen-off listening, record affirmations in your own voice, keep the screen on with low brightness, or install the app. Background sounds are generated on your device.
       </Notice>
-      <p className="text-sm text-muted">Relaxation and mental rehearsal can support winding down and motivation. Listening while asleep has not been shown to “reprogram” the subconscious — the most useful part is the calm, intentional time before sleep.</p>
+      <p className="text-sm text-muted">
+        Listening to affirmations or a meditation as you drift off can make bedtime calmer and keep your intentions in mind. Research shows your brain changes through what you repeatedly practise while awake, and sleep helps consolidate it — but hearing words while asleep hasn’t been shown to rewire beliefs on its own.{' '}
+        <Link to="/learn" className="text-accent underline-offset-4 hover:underline">What the science says</Link>
+      </p>
 
       <Playlists goalId={scope.goal?.id ?? null} affs={affs} vizs={vizs} disabled={playing} />
 

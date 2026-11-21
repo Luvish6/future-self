@@ -20,6 +20,7 @@ export const NAV: { to: string; label: string; icon: IconName; primary?: boolean
   { to: '/routine', label: 'Routine', icon: 'clock' },
   { to: '/vision', label: 'Vision board', icon: 'image' },
   { to: '/progress', label: 'Progress', icon: 'chart' },
+  { to: '/learn', label: 'The science', icon: 'star' },
   { to: '/settings', label: 'Settings & privacy', icon: 'settings' },
 ]
 
